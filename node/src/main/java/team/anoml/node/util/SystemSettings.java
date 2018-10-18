@@ -14,21 +14,20 @@ public class SystemSettings {
     public static final int CROSSTALK_FREQUENCY_MS = 20000;
     public static final int CROSSTALK_STARTUP_DELAY = 30000;
 
-
     //Communication with the Bootstrap Server
-    public static final String REG_MSG_FORMAT = "%d REG %s %d %s";
-    public static final String UNREG_MSG_FORMAT = "%d UNREG %s %d %s";
+    public static final String REG_MSG_FORMAT = "REG %s %d %s";
+    public static final String UNREG_MSG_FORMAT = "UNREG %s %d %s";
 
     //Communication with other nodes
-    public static final String JOIN_MSG_FORMAT = "%d JOIN %s %d %s";
-    public static final String JOINOK_MSG_FORMAT = "%d JOINOK %d";
-    public static final String LEAVE_MSG_FORMAT = "%d LEAVE %s %d";
-    public static final String LEAVEOK_MSG_FORMAT = "%d LEAVEOK %d";
+    public static final String JOIN_MSG_FORMAT = "JOIN %s %d %s";
+    public static final String JOINOK_MSG_FORMAT = "JOINOK %d";
+    public static final String LEAVE_MSG_FORMAT = "LEAVE %s %d";
+    public static final String LEAVEOK_MSG_FORMAT = "LEAVEOK %d";
 
-    public static final String NBR_MSG_FORMAT = "%d NBR %s %d";
-    public static final String NBROK_MSG_FORMAT = "%d NBROK %d %s";
+    public static final String NBR_MSG_FORMAT = "NBR %s %d";
+    public static final String NBROK_MSG_FORMAT = "NBROK %d %s";
 
-    public static final String ERROR_MSG_FORMAT = "%d ERROR %s";
+    public static final String ERROR_MSG_FORMAT = "ERROR %s";
 
     public static final String JOIN_REQUEST = "JOIN";
     public static final String JOIN_OK = "JOINOK";

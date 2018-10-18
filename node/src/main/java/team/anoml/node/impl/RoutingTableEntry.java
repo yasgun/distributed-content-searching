@@ -4,6 +4,7 @@ public class RoutingTableEntry {
 
     private String ip;
     private int port;
+    private boolean validated;
 
     public RoutingTableEntry(String ip, int port) {
         this.ip = ip;
@@ -16,5 +17,9 @@ public class RoutingTableEntry {
 
     public int getPort() {
         return port;
+    }
+
+    public void validate(){
+        this.validated = true;
     }
 }

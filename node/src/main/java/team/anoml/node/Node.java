@@ -1,7 +1,6 @@
 package team.anoml.node;
 
 import team.anoml.node.impl.RoutingTable;
-import team.anoml.node.impl.RoutingTableEntry;
 
 public class Node {
 
@@ -12,11 +11,7 @@ public class Node {
 
     }
 
-    public void addEntry(RoutingTableEntry entry) {
-        routingTable.addEntry(entry);
-    }
-
-    public String getIp_address() {
-        return ip_address;
+    public RoutingTable getRoutingTable() {
+        return routingTable;
     }
 }

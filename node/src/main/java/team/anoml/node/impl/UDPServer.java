@@ -5,9 +5,7 @@ import team.anoml.node.api.NodeServer;
 import team.anoml.node.util.SystemSettings;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
+import java.net.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -71,7 +69,7 @@ public class UDPServer implements NodeServer {
         InetSocketAddress recipient = new InetSocketAddress(incoming.getAddress(), incoming.getPort());
         switch (command) {
             case SystemSettings.JOIN_REQUEST:
-                executor.execute(() -> handleJoinRequest(request, recipient));
+                executor.execute(() -> handleJoinRequest(incomingResult[2], recipient));
                 break;
             case SystemSettings.JOIN_OK:
                 executor.execute(() -> handleJoinOKRequest(incomingResult[2], recipient));
@@ -90,11 +88,21 @@ public class UDPServer implements NodeServer {
         String ipAddress = parts[0];
         int port = Integer.parseInt(parts[1]);
 
-        node.addEntry(new RoutingTableEntry(ipAddress, port));
+        try (DatagramSocket datagramSocket = new DatagramSocket()) {
+            String response = String.format(SystemSettings.JOINOK_MSG_FORMAT, 0);
+            sendResponse(datagramSocket, response.length() + " " + response, new InetSocketAddress(ipAddress, port).getAddress(), port);
+            node.getRoutingTable().addEntry(new RoutingTableEntry(ipAddress, port));
+        } catch (IOException e) {
+            //
+        }
     }
 
     private void handleJoinOKRequest(String request, InetSocketAddress recipient) {
+        int value = Integer.valueOf(request);
 
+        if (value == 0) {
+            node.getRoutingTable().getEntryByIP(recipient.getHostName()).validate();
+        }
     }
 
     private void handleNeighbourRequest(String request, InetSocketAddress recipient) {
@@ -103,6 +111,11 @@ public class UDPServer implements NodeServer {
 
     private void handleNeighbourOKRequest(String request, InetSocketAddress recipient) {
 
+    }
+
+    public static void sendResponse(DatagramSocket datagramSocket, String response, InetAddress address, int port) throws IOException {
+        DatagramPacket datagramPacket = new DatagramPacket(response.getBytes(), response.length(), address, port);
+        datagramSocket.send(datagramPacket);
     }
 
     @Override
