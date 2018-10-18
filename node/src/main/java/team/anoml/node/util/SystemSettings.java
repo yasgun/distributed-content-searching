@@ -33,4 +33,12 @@ public class SystemSettings {
     public static final String JOIN_OK = "JOINOK";
     public static final String NEIGHBOUR_REQUEST = "NBR";
     public static final String NEIGHBOUR_OK = "NBROK";
+
+    public static String getIPAddress() {
+        return null;
+    }
+
+    public static int getPort() {
+        return 0;
+    }
 }
