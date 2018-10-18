@@ -1,6 +1,6 @@
-package team.anoml.distributed.systems.server;
+package team.anoml.server;
 
-import team.anoml.distributed.systems.Constants;
+import team.anoml.server.util.SystemSettings;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
 
 /**
  * A class to manage the Bootstrap Server Implementation
+ * <p>
  * Taken from CS4262 course CSE Provided by Dilum Bandara and Anura P. Jayasumana
  */
 public class BootstrapServer {
@@ -179,7 +180,7 @@ public class BootstrapServer {
     }
 
     public static void main(String[] args) {
-        BootstrapServer server = new BootstrapServer(Constants.BOOTSTRAP_PORT);
+        BootstrapServer server = new BootstrapServer(SystemSettings.BOOTSTRAP_PORT);
         server.start();
 
         while (server.isStarted()) {

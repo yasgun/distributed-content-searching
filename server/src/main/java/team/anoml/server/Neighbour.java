@@ -1,4 +1,4 @@
-package team.anoml.distributed.systems.server;
+package team.anoml.server;
 
 /**
  * A bean to represent a node in the distributed network. {@link BootstrapServer} uses this.
