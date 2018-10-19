@@ -6,12 +6,15 @@ import team.anoml.node.util.SystemSettings;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class UDPServer implements NodeServer {
 
-    private Node node;
+    private RoutingTable routingTable;
+    Timer timer = new Timer(true);
 
     Executor executor = Executors.newSingleThreadExecutor();
 
@@ -24,12 +27,10 @@ public class UDPServer implements NodeServer {
     }
 
     @Override
-    public void start(Node node) {
+    public void start() {
         if (listening) {
             return;
         }
-
-        this.node = node;
 
         try {
             listen();
@@ -40,9 +41,10 @@ public class UDPServer implements NodeServer {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
 
-    @Override
     public void listen() {
         try (DatagramSocket datagramSocket = new DatagramSocket(port)) {
+            listening = true;
+            startGossiping();
             while (listening) {
                 byte[] buffer = new byte[65536];
                 DatagramPacket incoming = new DatagramPacket(buffer, buffer.length);
@@ -60,6 +62,21 @@ public class UDPServer implements NodeServer {
         } catch (IOException e) {
             throw new IllegalStateException("Error occurred when listening", e);
         }
+    }
+
+    public void startGossiping() {
+        TimerTask timerTask = new GossipingTimerTask();
+        //running timer task as daemon thread
+        timer.scheduleAtFixedRate(timerTask, 10000, 10 * 1000);
+        System.out.println("TimerTask started");
+    }
+
+    protected void stopGossiping() {
+        timer.cancel();
+    }
+
+    public void setRoutingTable(RoutingTable routingTable) {
+        this.routingTable = routingTable;
     }
 
     private void handleRequest(String request, DatagramPacket incoming) throws IOException {
@@ -91,7 +108,7 @@ public class UDPServer implements NodeServer {
         try (DatagramSocket datagramSocket = new DatagramSocket()) {
             String response = String.format(SystemSettings.JOINOK_MSG_FORMAT, 0);
             sendResponse(datagramSocket, response.length() + " " + response, new InetSocketAddress(ipAddress, port).getAddress(), port);
-            node.getRoutingTable().addEntry(new RoutingTableEntry(ipAddress, port));
+            routingTable.addEntry(new RoutingTableEntry(ipAddress, port));
         } catch (IOException e) {
             //
         }
@@ -101,7 +118,7 @@ public class UDPServer implements NodeServer {
         int value = Integer.valueOf(request);
 
         if (value == 0) {
-            node.getRoutingTable().getEntryByIP(recipient.getHostName()).validate();
+            routingTable.getEntryByIP(recipient.getHostName()).validate();
         }
     }
 
@@ -120,6 +137,7 @@ public class UDPServer implements NodeServer {
 
     @Override
     public void stop() {
+        stopGossiping();
         if (listening) {
             listening = false;
             try {

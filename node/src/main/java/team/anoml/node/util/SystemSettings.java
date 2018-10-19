@@ -35,10 +35,14 @@ public class SystemSettings {
     public static final String NEIGHBOUR_OK = "NBROK";
 
     public static String getIPAddress() {
-        return null;
+        return "127.0.0.1";
     }
 
     public static int getPort() {
-        return 0;
+        return 44444;
+    }
+
+    public static String getUsername() {
+        return "TEST";
     }
 }
