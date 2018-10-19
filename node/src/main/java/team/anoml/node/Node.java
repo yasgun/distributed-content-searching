@@ -65,18 +65,18 @@ public class Node {
                     routingTable.addEntry(new RoutingTableEntry(parts[3], Integer.valueOf(parts[4])));
                     routingTable.addEntry(new RoutingTableEntry(parts[5], Integer.valueOf(parts[6])));
                     break;
-//                default:
-//                    Random random = new Random();
-//                    int randInt1 = random.nextInt(Integer.valueOf(noOfNodes));
-//                    int randInt2 = random.nextInt(Integer.valueOf(noOfNodes));
-//
-//                    while (randInt1 == randInt2) {
-//                        randInt2 = random.nextInt(Integer.valueOf(noOfNodes));
-//                    }
-//
-//                    routingTable.addEntry(new RoutingTableEntry(parts[randInt1 * 2 + 1], Integer.valueOf(parts[randInt1 * 2 + 2])));
-//                    routingTable.addEntry(new RoutingTableEntry(parts[randInt2 * 2 + 1], Integer.valueOf(parts[randInt2 * 2 + 2])));
-//                    break;
+                default:
+                    Random random = new Random();
+                    int randInt1 = random.nextInt(Integer.valueOf(noOfNodes));
+                    int randInt2 = random.nextInt(Integer.valueOf(noOfNodes));
+
+                    while (randInt1 == randInt2) {
+                        randInt2 = random.nextInt(Integer.valueOf(noOfNodes));
+                    }
+
+                    routingTable.addEntry(new RoutingTableEntry(parts[(randInt1 + 1) * 2 + 1], Integer.valueOf(parts[(randInt1 + 1) * 2 + 2])));
+                    routingTable.addEntry(new RoutingTableEntry(parts[(randInt1 + 1) * 2 + 1], Integer.valueOf(parts[(randInt1 + 1) * 2 + 2])));
+                    break;
             }
 
             for (RoutingTableEntry entry : routingTable.getAllEntries()) {
@@ -98,7 +98,7 @@ public class Node {
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
     }
 
-    public static void stopConnection() {
+    private static void stopConnection() {
         try {
             if (in != null && out != null & clientSocket != null) {
                 in.close();

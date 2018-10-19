@@ -1,6 +1,5 @@
 package team.anoml.node.impl;
 
-import team.anoml.node.Node;
 import team.anoml.node.api.NodeServer;
 import team.anoml.node.util.SystemSettings;
 
