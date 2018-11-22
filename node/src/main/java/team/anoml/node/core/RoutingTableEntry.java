@@ -1,10 +1,10 @@
-package team.anoml.node.impl;
+package team.anoml.node.core;
 
 public class RoutingTableEntry {
 
     private String ip;
     private int port;
-    private boolean validated;
+    private boolean validated = false;
 
     public RoutingTableEntry(String ip, int port) {
         this.ip = ip;
@@ -19,7 +19,11 @@ public class RoutingTableEntry {
         return port;
     }
 
-    public void validate(){
+    public void validate() {
         this.validated = true;
+    }
+
+    public boolean isValidated() {
+        return validated;
     }
 }

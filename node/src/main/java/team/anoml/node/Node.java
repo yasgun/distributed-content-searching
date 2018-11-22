@@ -1,7 +1,9 @@
 package team.anoml.node;
 
-import team.anoml.node.impl.RoutingTable;
-import team.anoml.node.impl.RoutingTableEntry;
+import team.anoml.node.core.RoutingTable;
+import team.anoml.node.core.RoutingTableEntry;
+import team.anoml.node.exception.NodeException;
+import team.anoml.node.impl.TCPServer;
 import team.anoml.node.impl.UDPServer;
 import team.anoml.node.util.SystemSettings;
 
@@ -11,52 +13,46 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Random;
-import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Node {
 
-    private static UDPServer udpServer;
-    private static RoutingTable routingTable;
-    private static String ipAddress;
-    private static int port;
-    private static String username;
+    private static Logger logger = Logger.getLogger(Node.class.getName());
 
-    private static Socket clientSocket = null;
-    private static PrintWriter out = null;
-    private static BufferedReader in = null;
+    private static UDPServer udpServer;
+    private static TCPServer tcpServer;
+
+    private static RoutingTable routingTable = RoutingTable.getRoutingTable();
+
+    private static String bootstrapIP = SystemSettings.getBootstrapIP();
+    private static int bootstrapPort = SystemSettings.getBootstrapPort();
+    private static String username = SystemSettings.getUsername();
 
     public static void main(String[] args) {
-        routingTable = new RoutingTable();
-        ipAddress = SystemSettings.getIPAddress();
+        try (Socket clientSocket = new Socket(bootstrapIP, bootstrapPort);
+             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
 
-        Scanner reader = new Scanner(System.in);
-        System.out.println("Enter the port number: ");
-        port = reader.nextInt();
+            String messageText = String.format(SystemSettings.REG_MSG_FORMAT, bootstrapIP, bootstrapPort, username);
 
-        System.out.println(port);
-
-        username = SystemSettings.getUsername();
-        udpServer = new UDPServer(port);
-        udpServer.setRoutingTable(routingTable);
-
-        // Add Bootstrapping logic here
-        try {
-            startConnection(SystemSettings.BOOTSTRAP_IP, SystemSettings.BOOTSTRAP_PORT);
-            String messageText = String.format(SystemSettings.REG_MSG_FORMAT, ipAddress, port, username);
-
-            String lengthText = "0000" + String.valueOf(messageText.length() + 5);
+            String lengthText = "0000" + (messageText.length() + 5);
             lengthText = lengthText.substring(lengthText.length() - 4);
             messageText = lengthText + " " + messageText;
 
-            System.out.println(messageText);
+            out.println(messageText);
 
-            String response = sendMessage(messageText);
+            char[] chars = new char[8192];
+            int read;
+            read = in.read(chars);
+
+            String response = String.valueOf(chars, 0, read);
 
             String[] parts = response.split(" ");
             String noOfNodes = parts[2];
             switch (Integer.valueOf(noOfNodes)) {
                 case 0:
-                    //
+                    //nothing to do until another node finds it out
                     break;
                 case 1:
                     routingTable.addEntry(new RoutingTableEntry(parts[3], Integer.valueOf(parts[4])));
@@ -78,50 +74,39 @@ public class Node {
                     routingTable.addEntry(new RoutingTableEntry(parts[(randInt1 + 1) * 2 + 1], Integer.valueOf(parts[(randInt1 + 1) * 2 + 2])));
                     break;
             }
-
-            for (RoutingTableEntry entry : routingTable.getAllEntries()) {
-                System.out.print(entry.getIP() + ":" + entry.getPort());
-            }
-
-            Runtime.getRuntime().addShutdownHook(new Thread(Node::stopConnection));
-
-            udpServer.start();
-
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Starting node failed", e);
+            throw new NodeException("Starting node failed", e);
         }
+
+        for (RoutingTableEntry entry : routingTable.getAllEntries()) {
+            logger.log(Level.INFO, entry.getIP() + ":" + entry.getPort());
+        }
+
+        Runtime.getRuntime().addShutdownHook(new Thread(Node::stopServers));
+
+        startServers();
     }
 
-    private static void startConnection(String ip, int port) throws IOException {
-        clientSocket = new Socket(ip, port);
-        out = new PrintWriter(clientSocket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-    }
+    private static void startServers() {
+        tcpServer = new TCPServer();
+        udpServer = new UDPServer();
 
-    private static void stopConnection() {
+        Thread tcpServerThread = new Thread(tcpServer);
+        Thread udpServerThread = new Thread(udpServer);
+
+        tcpServerThread.start();
+        udpServerThread.start();
+
         try {
-            if (in != null && out != null & clientSocket != null) {
-                in.close();
-                out.close();
-                clientSocket.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+            udpServerThread.join();
+        } catch (InterruptedException e) {
+            logger.log(Level.WARNING, "Waiting for UDP server unsuccessful", e);
         }
-
     }
 
-    private static String sendMessage(String outMessage) {
-        out.println(outMessage);
-
-        char[] chars = new char[8192];
-        int read = 0;
-        try {
-            read = in.read(chars);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return String.valueOf(chars, 0, read);
+    private static void stopServers() {
+        tcpServer.stopServer();
+        udpServer.stopServer();
     }
 }

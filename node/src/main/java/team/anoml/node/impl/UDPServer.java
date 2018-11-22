@@ -1,6 +1,14 @@
 package team.anoml.node.impl;
 
 import team.anoml.node.api.NodeServer;
+import team.anoml.node.handler.AbstractHandler;
+import team.anoml.node.handler.request.JoinRequestHandler;
+import team.anoml.node.handler.request.LeaveRequestHandler;
+import team.anoml.node.handler.request.NeighbourRequestHandler;
+import team.anoml.node.handler.request.SearchRequestHandler;
+import team.anoml.node.handler.response.*;
+import team.anoml.node.task.GossipingTimerTask;
+import team.anoml.node.task.HeartbeatTimerTask;
 import team.anoml.node.util.SystemSettings;
 
 import java.io.IOException;
@@ -9,42 +17,43 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class UDPServer implements NodeServer {
 
-    private RoutingTable routingTable;
-    Timer timer = new Timer(true);
+    private static Logger logger = Logger.getLogger(UDPServer.class.getName());
 
-    Executor executor = Executors.newSingleThreadExecutor();
+    private Timer timer = new Timer(true);
+    private Executor executor = Executors.newSingleThreadExecutor();
 
-    private final int numOfRetries = SystemSettings.RETRIES_COUNT;
     private boolean listening = false;
-    private final int port;
-
-    public UDPServer(int port) {
-        this.port = port;
-    }
+    private final int port = SystemSettings.getUDPPort();
 
     @Override
-    public void start() {
+    public void startServer() {
         if (listening) {
             return;
         }
 
         try {
+            Runtime.getRuntime().addShutdownHook(new Thread(this::stopServer));
             listen();
         } catch (Exception e) {
-            //
+            logger.log(Level.WARNING, "UDP listening failed");
         }
-
-        Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
 
-    public void listen() {
-        try (DatagramSocket datagramSocket = new DatagramSocket(port)) {
-            listening = true;
-            startGossiping();
-            while (listening) {
+    private void listen() throws SocketException {
+        listening = true;
+
+        startGossiping();
+        startHeartbeat();
+
+        DatagramSocket datagramSocket = new DatagramSocket(port);
+
+        while (listening) {
+            try {
                 byte[] buffer = new byte[65536];
                 DatagramPacket incoming = new DatagramPacket(buffer, buffer.length);
                 datagramSocket.receive(incoming);
@@ -52,98 +61,88 @@ public class UDPServer implements NodeServer {
                 byte[] data = incoming.getData();
                 String request = new String(data, 0, incoming.getLength());
 
-                try {
-                    handleRequest(request, incoming);
-                } catch (Exception e) {
-                    //TODO Retry
+                String[] incomingResult = request.split(" ", 3);
+                String command = incomingResult[1];
+
+                switch (command) {
+                    case SystemSettings.JOIN_MSG:
+                        AbstractHandler joinRequestHandler = new JoinRequestHandler();
+                        joinRequestHandler.setMessage(incomingResult[2]);
+                        executor.execute(new Thread(joinRequestHandler));
+                        break;
+                    case SystemSettings.LEAVE_MSG:
+                        AbstractHandler leaveRequestHandler = new LeaveRequestHandler();
+                        leaveRequestHandler.setMessage(incomingResult[2]);
+                        executor.execute(new Thread(leaveRequestHandler));
+                        break;
+                    case SystemSettings.NBR_MSG:
+                        AbstractHandler neighbourRequestHandler = new NeighbourRequestHandler();
+                        neighbourRequestHandler.setMessage(incomingResult[2]);
+                        executor.execute(new Thread(neighbourRequestHandler));
+                        break;
+                    case SystemSettings.SEARCH_MSG:
+                        AbstractHandler searchRequestHandler = new SearchRequestHandler();
+                        searchRequestHandler.setMessage(incomingResult[2]);
+                        executor.execute(new Thread(searchRequestHandler));
+                        break;
+                    case SystemSettings.ERROR_MSG:
+                        AbstractHandler errorResponseHandler = new ErrorResponseHandler();
+                        errorResponseHandler.setMessage(incomingResult[2]);
+                        executor.execute(new Thread(errorResponseHandler));
+                        break;
+                    case SystemSettings.JOINOK_MSG:
+                        AbstractHandler joinResponseHandler = new JoinResponseHandler();
+                        joinResponseHandler.setMessage(incomingResult[2]);
+                        executor.execute(new Thread(joinResponseHandler));
+                        break;
+                    case SystemSettings.LEAVEOK_MSG:
+                        AbstractHandler leaveResponseHandler = new LeaveResponseHandler();
+                        leaveResponseHandler.setMessage(incomingResult[2]);
+                        executor.execute(new Thread(leaveResponseHandler));
+                        break;
+                    case SystemSettings.NBROK_MSG:
+                        AbstractHandler neighbourResponseHandler = new NeighbourResponseHandler();
+                        neighbourResponseHandler.setMessage(incomingResult[2]);
+                        executor.execute(new Thread(neighbourResponseHandler));
+                        break;
+                    case SystemSettings.SEARCHOK_MSG:
+                        AbstractHandler searchResponseHandler = new SearchResponseHandler();
+                        searchResponseHandler.setMessage(incomingResult[2]);
+                        executor.execute(new Thread(searchResponseHandler));
+                        break;
                 }
+            } catch (IOException e) {
+                logger.log(Level.WARNING, "Error occurred while listening", e);
             }
-        } catch (IOException e) {
-            throw new IllegalStateException("Error occurred when listening", e);
         }
     }
 
-    public void startGossiping() {
+    private void startGossiping() {
         TimerTask timerTask = new GossipingTimerTask();
-        //running timer task as daemon thread
-        timer.scheduleAtFixedRate(timerTask, 10000, 10 * 1000);
-        System.out.println("TimerTask started");
+        timer.scheduleAtFixedRate(timerTask, SystemSettings.getUDPGossipDelay(), SystemSettings.getUDPGossipPeriod());
     }
 
-    protected void stopGossiping() {
-        timer.cancel();
-    }
-
-    public void setRoutingTable(RoutingTable routingTable) {
-        this.routingTable = routingTable;
-    }
-
-    private void handleRequest(String request, DatagramPacket incoming) throws IOException {
-        String[] incomingResult = request.split(" ", 3);
-        String command = incomingResult[1];
-
-        InetSocketAddress recipient = new InetSocketAddress(incoming.getAddress(), incoming.getPort());
-        switch (command) {
-            case SystemSettings.JOIN_REQUEST:
-                executor.execute(() -> handleJoinRequest(incomingResult[2], recipient));
-                break;
-            case SystemSettings.JOIN_OK:
-                executor.execute(() -> handleJoinOKRequest(incomingResult[2], recipient));
-                break;
-            case SystemSettings.NEIGHBOUR_REQUEST:
-                executor.execute(() -> handleNeighbourRequest(incomingResult[2], recipient));
-                break;
-            case SystemSettings.NEIGHBOUR_OK:
-                executor.execute(() -> handleNeighbourOKRequest(incomingResult[2], recipient));
-                break;
-        }
-    }
-
-    private void handleJoinRequest(String request, InetSocketAddress recipient) {
-        String[] parts = request.split(" ");
-        String ipAddress = parts[0];
-        int port = Integer.parseInt(parts[1]);
-
-        try (DatagramSocket datagramSocket = new DatagramSocket()) {
-            String response = String.format(SystemSettings.JOINOK_MSG_FORMAT, 0);
-            sendResponse(datagramSocket, response.length() + " " + response, new InetSocketAddress(ipAddress, port).getAddress(), port);
-            routingTable.addEntry(new RoutingTableEntry(ipAddress, port));
-        } catch (IOException e) {
-            //
-        }
-    }
-
-    private void handleJoinOKRequest(String request, InetSocketAddress recipient) {
-        int value = Integer.valueOf(request);
-
-        if (value == 0) {
-            routingTable.getEntryByIP(recipient.getHostName()).validate();
-        }
-    }
-
-    private void handleNeighbourRequest(String request, InetSocketAddress recipient) {
-
-    }
-
-    private void handleNeighbourOKRequest(String request, InetSocketAddress recipient) {
-
-    }
-
-    public static void sendResponse(DatagramSocket datagramSocket, String response, InetAddress address, int port) throws IOException {
-        DatagramPacket datagramPacket = new DatagramPacket(response.getBytes(), response.length(), address, port);
-        datagramSocket.send(datagramPacket);
+    private void startHeartbeat() {
+        TimerTask timerTask = new HeartbeatTimerTask();
+        timer.scheduleAtFixedRate(timerTask, SystemSettings.getUDPHeartbeatDelay(), SystemSettings.getUDPHeartbeatPeriod());
     }
 
     @Override
-    public void stop() {
-        stopGossiping();
+    public void stopServer() {
+
+        timer.cancel();
+
         if (listening) {
             listening = false;
             try {
-                Thread.sleep(SystemSettings.SHUTDOWN_GRACE_PERIOD_MS);
-            } catch (InterruptedException e) {
-                //
+                Thread.sleep(SystemSettings.getUDPShutdownGracePeriod());
+            } catch (InterruptedException ignored) {
             }
         }
+    }
+
+    @Override
+    public void run() {
+        startServer();
     }
 }

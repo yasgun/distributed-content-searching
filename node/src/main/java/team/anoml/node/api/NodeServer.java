@@ -1,8 +1,8 @@
 package team.anoml.node.api;
 
-public interface NodeServer {
+public interface NodeServer extends Runnable {
 
-    void start();
+    void startServer();
 
-    void stop();
+    void stopServer();
 }

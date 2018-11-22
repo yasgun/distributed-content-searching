@@ -4,12 +4,17 @@ import team.anoml.node.api.NodeServer;
 
 public class TCPServer implements NodeServer {
     @Override
-    public void start() {
+    public void startServer() {
 
     }
 
     @Override
-    public void stop() {
+    public void stopServer() {
+
+    }
+
+    @Override
+    public void run() {
 
     }
 }
