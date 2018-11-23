@@ -30,6 +30,9 @@ public class Node {
     private static String username = SystemSettings.getUsername();
 
     public static void main(String[] args) {
+
+        logger.log(Level.INFO, "Connecting to Bootstrap Server at: " + bootstrapIP + " through port: " + bootstrapPort);
+
         try (Socket clientSocket = new Socket(bootstrapIP, bootstrapPort);
              PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
