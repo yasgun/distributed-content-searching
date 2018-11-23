@@ -2,11 +2,12 @@ package team.anoml.node.core;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RoutingTable {
 
     private static RoutingTable routingTable = new RoutingTable();
-    private HashMap<String, RoutingTableEntry> entries = new HashMap<>();
+    private ConcurrentHashMap<String, RoutingTableEntry> entries = new ConcurrentHashMap<>();
 
     private RoutingTable() {
         //nothing is required here
