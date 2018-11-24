@@ -34,6 +34,9 @@ public class SystemSettings {
 
     public static final String ERROR_MSG_FORMAT = "ERROR %s";
 
+    public static final String SER_MSG_FORMAT = "SER %s %d %s %d";
+    public static final String SEROK_MSG_FORMAT = "SEROK %d %s %d %d %s";
+
     /********************************************
      * Request Types
      ********************************************/

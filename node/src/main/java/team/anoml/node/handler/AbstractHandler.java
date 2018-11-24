@@ -1,5 +1,6 @@
 package team.anoml.node.handler;
 
+import team.anoml.node.core.FileTable;
 import team.anoml.node.core.RoutingTable;
 import team.anoml.node.util.SystemSettings;
 
@@ -11,6 +12,7 @@ import java.net.InetAddress;
 public abstract class AbstractHandler implements Runnable {
 
     private RoutingTable routingTable = RoutingTable.getRoutingTable();
+    private FileTable fileTable = FileTable.getFileTable();
     private String message;
 
     public void setMessage(String message) {
@@ -39,5 +41,9 @@ public abstract class AbstractHandler implements Runnable {
 
     protected RoutingTable getRoutingTable() {
         return routingTable;
+    }
+
+    protected FileTable getFileTable() {
+        return fileTable;
     }
 }
