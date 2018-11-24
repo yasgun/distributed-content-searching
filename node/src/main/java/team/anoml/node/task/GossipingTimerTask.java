@@ -22,6 +22,8 @@ public class GossipingTimerTask extends TimerTask {
 
     @Override
     public void run() {
+        logger.log(Level.INFO, "Gossiping round started");
+
         Collection<RoutingTableEntry> routingTableEntries = RoutingTable.getRoutingTable().getAllEntries();
 
         for (RoutingTableEntry entry : routingTableEntries) {

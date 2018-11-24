@@ -1,31 +1,27 @@
 package team.anoml.node;
 
 import team.anoml.node.core.FileTable;
+import team.anoml.node.core.FileTableEntry;
 import team.anoml.node.core.RoutingTable;
 import team.anoml.node.core.RoutingTableEntry;
 import team.anoml.node.exception.NodeException;
 import team.anoml.node.impl.TCPServer;
 import team.anoml.node.impl.UDPServer;
-import team.anoml.node.util.PrintUtils;
+import team.anoml.node.util.NodeUtils;
 import team.anoml.node.util.SystemSettings;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Node {
 
     private static Logger logger = Logger.getLogger(Node.class.getName());
-
-    private Executor executor = Executors.newSingleThreadExecutor();
 
     private static boolean running = false;
 
@@ -66,6 +62,7 @@ public class Node {
 
             if (parts[1].equals(SystemSettings.ERROR_MSG)) {
                 throw new NodeException("Starting node failed", new Throwable("Error response: " + parts[2]));
+
             } else if (parts[1].equals(SystemSettings.REGOK_MSG)) {
 
                 switch (Integer.valueOf(noOfNodes)) {
@@ -96,7 +93,7 @@ public class Node {
                 throw new NodeException("Starting node failed", new Throwable("Unknown message format"));
             }
 
-
+            generateFiles();
 
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Starting node failed", e);
@@ -122,10 +119,10 @@ public class Node {
 
                 switch (command) {
                     case SystemSettings.SHOW_FILES:
-                        PrintUtils.printFileTable(fileTable);
+                        NodeUtils.printFileTable(fileTable);
                         break;
                     case SystemSettings.SHOW_ROUTES:
-                        PrintUtils.printRoutingTable(routingTable);
+                        NodeUtils.printRoutingTable(routingTable);
                         break;
                     case SystemSettings.SEARCH:
                         break;
@@ -160,6 +157,28 @@ public class Node {
     private static void stopServers() {
         running = false;
 
+        for (int i = 0; i < SystemSettings.getShutdownRetryCount(); i++) {
+            String response = sendUnregisterMessage();
+
+            String[] parts = response.split(" ");
+
+            if (parts[1].equals(SystemSettings.UNROK_MSG)) {
+                break;
+            }
+        }
+
+        tcpServer.stopServer();
+        udpServer.stopServer();
+
+        try {
+            Thread.sleep(SystemSettings.getShutdownGracePeriod());
+        } catch (InterruptedException ignored) {
+        }
+    }
+
+    private static String sendUnregisterMessage() {
+        String response = null;
+
         try (Socket clientSocket = new Socket(bootstrapIP, bootstrapPort);
              PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
@@ -176,22 +195,35 @@ public class Node {
             int read;
             read = in.read(chars);
 
-            String response = String.valueOf(chars, 0, read);
-
-            String[] parts = response.split(" ");
-
-            //TODO handle unreg message to bootstrap server
+            response = String.valueOf(chars, 0, read);
 
         } catch (IOException e) {
             logger.log(Level.WARNING, "Sending unregister message to bootstrap server failed", e);
         }
+        return response;
+    }
 
-        tcpServer.stopServer();
-        udpServer.stopServer();
+    private static void generateFiles() throws IOException {
 
-        try {
-            Thread.sleep(SystemSettings.getShutdownGracePeriod());
-        } catch (InterruptedException ignored) {
+        String[] fileNames = SystemSettings.FILE_NAMES;
+
+        Random random = new Random();
+
+        //Each node contributing 3-5 files
+        int noOfFiles = random.nextInt(3) + 3;
+
+        ArrayList<Integer> list = new ArrayList<>();
+
+        for (int i = 1; i < fileNames.length; i++) {
+            list.add(i);
+        }
+
+        Collections.shuffle(list);
+
+        for (int i = 0; i < noOfFiles; i++) {
+            String fileName = fileNames[list.get(i)];
+            File file = NodeUtils.createFile(fileName);
+            fileTable.addEntry(new FileTableEntry(fileName, NodeUtils.getMD5Hex(file)));
         }
     }
 }

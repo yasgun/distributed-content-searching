@@ -28,6 +28,7 @@ public class SystemSettings {
     public static final String UNREG_MSG_FORMAT = "UNREG %s %d %s";
 
     public static final String REGOK_MSG = "REGOK";
+    public static final String UNROK_MSG = "UNROK";
 
     /********************************************
      * Communication with the Other Nodes
@@ -78,6 +79,33 @@ public class SystemSettings {
     public static final String DOWN_MSG = "DOWN";
 
     /********************************************
+     * File Names
+     ********************************************/
+
+    public static final String[] FILE_NAMES = {
+            "Adventures of Tintin",
+            "Jack and Jill",
+            "Glee",
+            "The Vampire Diarie",
+            "King Arthur",
+            "Windows XP",
+            "Harry Potter",
+            "Kung Fu Panda",
+            "Lady Gaga",
+            "Twilight",
+            "Windows 8",
+            "Mission Impossible",
+            "Turn Up The Music",
+            "Super Mario",
+            "American Pickers",
+            "Microsoft Office 2010",
+            "Happy Feet",
+            "Modern Family",
+            "American Idol",
+            "Hacking for Dummies"
+    };
+
+    /********************************************
      * Configurations
      ********************************************/
 
@@ -110,6 +138,14 @@ public class SystemSettings {
 
     public static int getShutdownGracePeriod() {
         return Integer.valueOf(properties.getProperty("node.shutdown_grace_period", "5000"));
+    }
+
+    public static int getShutdownRetryCount() {
+        return Integer.valueOf(properties.getProperty("node.shutdown_retry_count", "3"));
+    }
+
+    public static String getFilePath() {
+        return properties.getProperty("node.file_path", "/files/");
     }
 
     public static int getRequestTryCount() {
