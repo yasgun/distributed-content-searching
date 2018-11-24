@@ -1,10 +1,12 @@
 package team.anoml.node;
 
+import team.anoml.node.core.FileTable;
 import team.anoml.node.core.RoutingTable;
 import team.anoml.node.core.RoutingTableEntry;
 import team.anoml.node.exception.NodeException;
 import team.anoml.node.impl.TCPServer;
 import team.anoml.node.impl.UDPServer;
+import team.anoml.node.util.PrintUtils;
 import team.anoml.node.util.SystemSettings;
 
 import java.io.BufferedReader;
@@ -31,6 +33,7 @@ public class Node {
     private static TCPServer tcpServer;
 
     private static RoutingTable routingTable = RoutingTable.getRoutingTable();
+    private static FileTable fileTable = FileTable.getFileTable();
 
     private static String bootstrapIP = SystemSettings.getBootstrapIP();
     private static int bootstrapPort = SystemSettings.getBootstrapPort();
@@ -60,30 +63,41 @@ public class Node {
 
             String[] parts = response.split(" ");
             String noOfNodes = parts[2];
-            switch (Integer.valueOf(noOfNodes)) {
-                case 0:
-                    //nothing to do until another node finds it out
-                    break;
-                case 1:
-                    routingTable.addEntry(new RoutingTableEntry(parts[3], Integer.valueOf(parts[4])));
-                    break;
-                case 2:
-                    routingTable.addEntry(new RoutingTableEntry(parts[3], Integer.valueOf(parts[4])));
-                    routingTable.addEntry(new RoutingTableEntry(parts[5], Integer.valueOf(parts[6])));
-                    break;
-                default:
-                    Random random = new Random();
-                    int randInt1 = random.nextInt(Integer.valueOf(noOfNodes));
-                    int randInt2 = random.nextInt(Integer.valueOf(noOfNodes));
 
-                    while (randInt1 == randInt2) {
-                        randInt2 = random.nextInt(Integer.valueOf(noOfNodes));
-                    }
+            if (parts[1].equals(SystemSettings.ERROR_MSG)) {
+                throw new NodeException("Starting node failed", new Throwable("Error response: " + parts[2]));
+            } else if (parts[1].equals(SystemSettings.REGOK_MSG)) {
 
-                    routingTable.addEntry(new RoutingTableEntry(parts[(randInt1 + 1) * 2 + 1], Integer.valueOf(parts[(randInt1 + 1) * 2 + 2])));
-                    routingTable.addEntry(new RoutingTableEntry(parts[(randInt1 + 1) * 2 + 1], Integer.valueOf(parts[(randInt1 + 1) * 2 + 2])));
-                    break;
+                switch (Integer.valueOf(noOfNodes)) {
+                    case 0:
+                        //nothing to do until another node finds it out
+                        break;
+                    case 1:
+                        routingTable.addEntry(new RoutingTableEntry(parts[3], Integer.valueOf(parts[4])));
+                        break;
+                    case 2:
+                        routingTable.addEntry(new RoutingTableEntry(parts[3], Integer.valueOf(parts[4])));
+                        routingTable.addEntry(new RoutingTableEntry(parts[5], Integer.valueOf(parts[6])));
+                        break;
+                    default:
+                        Random random = new Random();
+                        int randInt1 = random.nextInt(Integer.valueOf(noOfNodes));
+                        int randInt2 = random.nextInt(Integer.valueOf(noOfNodes));
+
+                        while (randInt1 == randInt2) {
+                            randInt2 = random.nextInt(Integer.valueOf(noOfNodes));
+                        }
+
+                        routingTable.addEntry(new RoutingTableEntry(parts[(randInt1 + 1) * 2 + 1], Integer.valueOf(parts[(randInt1 + 1) * 2 + 2])));
+                        routingTable.addEntry(new RoutingTableEntry(parts[(randInt1 + 1) * 2 + 1], Integer.valueOf(parts[(randInt1 + 1) * 2 + 2])));
+                        break;
+                }
+            } else {
+                throw new NodeException("Starting node failed", new Throwable("Unknown message format"));
             }
+
+
+
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Starting node failed", e);
             throw new NodeException("Starting node failed", e);
@@ -97,19 +111,21 @@ public class Node {
 
         startServers();
 
-        while (running){
+        while (running) {
             try {
                 Scanner keyboard = new Scanner(System.in);
                 System.out.println("Enter Command: ");
                 String request = keyboard.nextLine();
 
                 String[] incomingResult = request.split(" ", 3);
-                String command = incomingResult[1];
+                String command = incomingResult[0];
 
-                switch (command){
+                switch (command) {
                     case SystemSettings.SHOW_FILES:
+                        PrintUtils.printFileTable(fileTable);
                         break;
                     case SystemSettings.SHOW_ROUTES:
+                        PrintUtils.printRoutingTable(routingTable);
                         break;
                     case SystemSettings.SEARCH:
                         break;
@@ -122,7 +138,7 @@ public class Node {
                         break;
                 }
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 System.out.println("Invalid request! Please try again");
             }
         }
@@ -143,7 +159,39 @@ public class Node {
 
     private static void stopServers() {
         running = false;
+
+        try (Socket clientSocket = new Socket(bootstrapIP, bootstrapPort);
+             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
+
+            String messageText = String.format(SystemSettings.UNREG_MSG_FORMAT, bootstrapIP, bootstrapPort, username);
+
+            String lengthText = "0000" + (messageText.length() + 5);
+            lengthText = lengthText.substring(lengthText.length() - 4);
+            messageText = lengthText + " " + messageText;
+
+            out.println(messageText);
+
+            char[] chars = new char[8192];
+            int read;
+            read = in.read(chars);
+
+            String response = String.valueOf(chars, 0, read);
+
+            String[] parts = response.split(" ");
+
+            //TODO handle unreg message to bootstrap server
+
+        } catch (IOException e) {
+            logger.log(Level.WARNING, "Sending unregister message to bootstrap server failed", e);
+        }
+
         tcpServer.stopServer();
         udpServer.stopServer();
+
+        try {
+            Thread.sleep(SystemSettings.getShutdownGracePeriod());
+        } catch (InterruptedException ignored) {
+        }
     }
 }

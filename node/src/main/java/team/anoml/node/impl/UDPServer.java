@@ -8,7 +8,6 @@ import team.anoml.node.task.GossipingTimerTask;
 import team.anoml.node.task.HeartbeatTimerTask;
 import team.anoml.node.util.SystemSettings;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -144,7 +143,7 @@ public class UDPServer implements NodeServer {
         if (listening) {
             listening = false;
             try {
-                Thread.sleep(SystemSettings.getUDPShutdownGracePeriod());
+                Thread.sleep(SystemSettings.getShutdownGracePeriod());
             } catch (InterruptedException ignored) {
             }
         }

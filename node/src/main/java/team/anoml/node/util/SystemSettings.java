@@ -27,6 +27,8 @@ public class SystemSettings {
     public static final String REG_MSG_FORMAT = "REG %s %d %s";
     public static final String UNREG_MSG_FORMAT = "UNREG %s %d %s";
 
+    public static final String REGOK_MSG = "REGOK";
+
     /********************************************
      * Communication with the Other Nodes
      ********************************************/
@@ -106,6 +108,10 @@ public class SystemSettings {
         return properties.getProperty("node.username", "username");
     }
 
+    public static int getShutdownGracePeriod() {
+        return Integer.valueOf(properties.getProperty("node.shutdown_grace_period", "5000"));
+    }
+
     public static int getRequestTryCount() {
         return Integer.valueOf(properties.getProperty("request.try.count", "3"));
     }
@@ -116,10 +122,6 @@ public class SystemSettings {
 
     public static int getUDPPort() {
         return Integer.valueOf(properties.getProperty("server.udp.port", "1234"));
-    }
-
-    public static int getUDPShutdownGracePeriod() {
-        return Integer.valueOf(properties.getProperty("server.udp.shutdown_grace_period", "5000"));
     }
 
     public static int getUDPGossipPeriod() {
