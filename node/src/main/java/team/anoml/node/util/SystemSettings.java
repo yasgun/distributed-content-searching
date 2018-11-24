@@ -11,6 +11,16 @@ public class SystemSettings {
     private static Logger logger = Logger.getLogger(SystemSettings.class.getName());
 
     /********************************************
+     * Keyboard Commands
+     ********************************************/
+
+    public static final String SHOW_FILES = "show:files";
+    public static final String SHOW_ROUTES = "show:routes";
+    public static final String SEARCH = "search";
+    public static final String DOWNLOAD = "download";
+    public static final String EXIT = "exit";
+
+    /********************************************
      * Communication with the Bootstrap Server
      ********************************************/
 
