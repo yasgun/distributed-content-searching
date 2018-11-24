@@ -62,6 +62,7 @@ public class Node {
 
             if (parts[1].equals(SystemSettings.ERROR_MSG)) {
                 throw new NodeException("Starting node failed", new Throwable("Error response: " + parts[2]));
+
             } else if (parts[1].equals(SystemSettings.REGOK_MSG)) {
 
                 switch (Integer.valueOf(noOfNodes)) {

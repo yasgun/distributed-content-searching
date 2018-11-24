@@ -24,7 +24,7 @@ public class NodeUtils {
         return DigestUtils.md5Hex(new FileInputStream(file)).toUpperCase();
     }
 
-    public static void createFile(String fileName) throws IOException {
+    public static File createFile(String fileName) throws IOException {
         String filePath = SystemSettings.getFilePath();
         Random random = new Random();
         
@@ -34,5 +34,7 @@ public class NodeUtils {
 
         Path file = Paths.get(filePath, fileName);
         Files.write(file, array);
+
+        return file.toFile();
     }
 }
