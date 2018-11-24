@@ -1,6 +1,7 @@
 package team.anoml.node;
 
 import team.anoml.node.core.FileTable;
+import team.anoml.node.core.FileTableEntry;
 import team.anoml.node.core.RoutingTable;
 import team.anoml.node.core.RoutingTableEntry;
 import team.anoml.node.exception.NodeException;
@@ -9,25 +10,18 @@ import team.anoml.node.impl.UDPServer;
 import team.anoml.node.util.NodeUtils;
 import team.anoml.node.util.SystemSettings;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Node {
 
     private static Logger logger = Logger.getLogger(Node.class.getName());
-
-    private Executor executor = Executors.newSingleThreadExecutor();
 
     private static boolean running = false;
 
@@ -162,6 +156,28 @@ public class Node {
     private static void stopServers() {
         running = false;
 
+        for (int i = 0; i < SystemSettings.getShutdownRetryCount(); i++) {
+            String response = sendUnregisterMessage();
+
+            String[] parts = response.split(" ");
+
+            if (parts[1].equals(SystemSettings.UNROK_MSG)) {
+                break;
+            }
+        }
+
+        tcpServer.stopServer();
+        udpServer.stopServer();
+
+        try {
+            Thread.sleep(SystemSettings.getShutdownGracePeriod());
+        } catch (InterruptedException ignored) {
+        }
+    }
+
+    private static String sendUnregisterMessage() {
+        String response = null;
+
         try (Socket clientSocket = new Socket(bootstrapIP, bootstrapPort);
              PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
@@ -178,26 +194,15 @@ public class Node {
             int read;
             read = in.read(chars);
 
-            String response = String.valueOf(chars, 0, read);
-
-            String[] parts = response.split(" ");
-
-            //TODO handle unreg message to bootstrap server
+            response = String.valueOf(chars, 0, read);
 
         } catch (IOException e) {
             logger.log(Level.WARNING, "Sending unregister message to bootstrap server failed", e);
         }
-
-        tcpServer.stopServer();
-        udpServer.stopServer();
-
-        try {
-            Thread.sleep(SystemSettings.getShutdownGracePeriod());
-        } catch (InterruptedException ignored) {
-        }
+        return response;
     }
 
-    private static void generateFiles() {
+    private static void generateFiles() throws IOException {
 
         String[] fileNames = SystemSettings.FILE_NAMES;
 
@@ -215,8 +220,9 @@ public class Node {
         Collections.shuffle(list);
 
         for (int i = 0; i < noOfFiles; i++) {
-            //generating files
-            
+            String fileName = fileNames[list.get(i)];
+            File file = NodeUtils.createFile(fileName);
+            fileTable.addEntry(new FileTableEntry(fileName, NodeUtils.getMD5Hex(file)));
         }
     }
 }
