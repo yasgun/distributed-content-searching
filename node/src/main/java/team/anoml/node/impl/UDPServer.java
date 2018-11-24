@@ -2,17 +2,16 @@ package team.anoml.node.impl;
 
 import team.anoml.node.api.NodeServer;
 import team.anoml.node.handler.AbstractHandler;
-import team.anoml.node.handler.request.JoinRequestHandler;
-import team.anoml.node.handler.request.LeaveRequestHandler;
-import team.anoml.node.handler.request.NeighbourRequestHandler;
-import team.anoml.node.handler.request.SearchRequestHandler;
+import team.anoml.node.handler.request.*;
 import team.anoml.node.handler.response.*;
 import team.anoml.node.task.GossipingTimerTask;
 import team.anoml.node.task.HeartbeatTimerTask;
 import team.anoml.node.util.SystemSettings;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
@@ -27,7 +26,7 @@ public class UDPServer implements NodeServer {
     private Timer timer = new Timer(true);
     private Executor executor = Executors.newSingleThreadExecutor();
 
-    private boolean listening = false;
+    private static boolean listening = false;
     private final int port = SystemSettings.getUDPPort();
 
     @Override
@@ -46,7 +45,6 @@ public class UDPServer implements NodeServer {
 
     private void listen() throws SocketException {
         listening = true;
-
         startGossiping();
         startHeartbeat();
 
@@ -80,6 +78,11 @@ public class UDPServer implements NodeServer {
                         neighbourRequestHandler.setMessage(incomingResult[2]);
                         executor.execute(new Thread(neighbourRequestHandler));
                         break;
+                    case SystemSettings.HB_MSG:
+                        AbstractHandler heartbeatRequestHandler = new HeartbeatRequestHandler();
+                        heartbeatRequestHandler.setMessage(incomingResult[2]);
+                        executor.execute(new Thread(heartbeatRequestHandler));
+                        break;
                     case SystemSettings.SEARCH_MSG:
                         AbstractHandler searchRequestHandler = new SearchRequestHandler();
                         searchRequestHandler.setMessage(incomingResult[2]);
@@ -104,6 +107,11 @@ public class UDPServer implements NodeServer {
                         AbstractHandler neighbourResponseHandler = new NeighbourResponseHandler();
                         neighbourResponseHandler.setMessage(incomingResult[2]);
                         executor.execute(new Thread(neighbourResponseHandler));
+                        break;
+                    case SystemSettings.HBOK_MSG:
+                        AbstractHandler heartbeatResponseHandler = new HeartbeatResponseHandler();
+                        heartbeatResponseHandler.setMessage(incomingResult[2]);
+                        executor.execute(new Thread(heartbeatResponseHandler));
                         break;
                     case SystemSettings.SEARCHOK_MSG:
                         AbstractHandler searchResponseHandler = new SearchResponseHandler();
@@ -144,5 +152,13 @@ public class UDPServer implements NodeServer {
     @Override
     public void run() {
         startServer();
+    }
+
+    public static String getHealthStatus() {
+        if (listening) {
+            return "GREEN";
+        } else {
+            return "RED";
+        }
     }
 }
