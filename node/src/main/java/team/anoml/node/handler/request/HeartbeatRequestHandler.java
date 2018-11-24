@@ -25,7 +25,7 @@ public class HeartbeatRequestHandler extends AbstractRequestHandler {
         try (DatagramSocket datagramSocket = new DatagramSocket()) {
             String healthStatus = UDPServer.getHealthStatus();
             String response = String.format(SystemSettings.HBOK_MSG_FORMAT, healthStatus);
-            sendResponse(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
+            sendMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
             logger.log(Level.INFO, "Sent health status : " + healthStatus + " to " + ipAddress + ":" + port);
         } catch (IOException e) {
             logger.log(Level.WARNING, "Handling HB request failed", e);
