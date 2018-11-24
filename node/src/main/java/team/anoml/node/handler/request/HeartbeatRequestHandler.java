@@ -13,6 +13,7 @@ import java.util.logging.Logger;
  * Created by ashenwgt on 11/24/18.
  */
 public class HeartbeatRequestHandler extends AbstractRequestHandler {
+
     private static Logger logger = Logger.getLogger(HeartbeatRequestHandler.class.getName());
 
     @Override

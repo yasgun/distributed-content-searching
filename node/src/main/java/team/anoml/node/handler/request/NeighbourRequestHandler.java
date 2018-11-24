@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 public class NeighbourRequestHandler extends AbstractRequestHandler {
 
-    private static Logger logger = Logger.getLogger(JoinRequestHandler.class.getName());
+    private static Logger logger = Logger.getLogger(NeighbourRequestHandler.class.getName());
 
     @Override
     protected void handleRequest() {
