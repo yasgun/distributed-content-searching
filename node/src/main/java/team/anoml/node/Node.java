@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -23,6 +24,8 @@ public class Node {
     private static Logger logger = Logger.getLogger(Node.class.getName());
 
     private Executor executor = Executors.newSingleThreadExecutor();
+
+    private static boolean running = false;
 
     private static UDPServer udpServer;
     private static TCPServer tcpServer;
@@ -93,6 +96,36 @@ public class Node {
         Runtime.getRuntime().addShutdownHook(new Thread(Node::stopServers));
 
         startServers();
+
+        while (running){
+            try {
+                Scanner keyboard = new Scanner(System.in);
+                System.out.println("Enter Command: ");
+                String request = keyboard.nextLine();
+
+                String[] incomingResult = request.split(" ", 3);
+                String command = incomingResult[1];
+
+                switch (command){
+                    case SystemSettings.SHOW_FILES:
+                        break;
+                    case SystemSettings.SHOW_ROUTES:
+                        break;
+                    case SystemSettings.SEARCH:
+                        break;
+                    case SystemSettings.DOWNLOAD:
+                        break;
+                    case SystemSettings.EXIT:
+                        System.out.println("Terminating node...");
+                        stopServers();
+                        System.out.println("Node terminated successfully");
+                        break;
+                }
+
+            }catch (Exception e){
+                System.out.println("Invalid request! Please try again");
+            }
+        }
     }
 
     private static void startServers() {
@@ -105,14 +138,11 @@ public class Node {
         tcpServerThread.start();
         udpServerThread.start();
 
-        try {
-            udpServerThread.join();
-        } catch (InterruptedException e) {
-            logger.log(Level.WARNING, "Waiting for UDP server unsuccessful", e);
-        }
+        running = true;
     }
 
     private static void stopServers() {
+        running = false;
         tcpServer.stopServer();
         udpServer.stopServer();
     }
