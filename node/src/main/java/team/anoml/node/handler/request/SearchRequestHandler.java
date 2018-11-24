@@ -1,6 +1,7 @@
 package team.anoml.node.handler.request;
 
 import team.anoml.node.core.FileTableEntry;
+import team.anoml.node.core.RoutingTableEntry;
 import team.anoml.node.util.SystemSettings;
 
 import java.io.IOException;
@@ -37,6 +38,19 @@ public class SearchRequestHandler extends AbstractRequestHandler {
                 sendMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
                 logger.log(Level.INFO, "Sent file names " + fileNamesResponse + " to: ip " + ipAddress + " port: " +
                         port);
+            } catch (IOException e) {
+                logger.log(Level.WARNING, "Handling SER request failed", e);
+            }
+        } else {
+            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+                String request = String.format(SystemSettings.SER_MSG_FORMAT, ipAddress, port, fileName, hopsCount + 1);
+
+                for (RoutingTableEntry routingTableEntry : getRoutingTable().getAllEntries()) {
+                    sendMessage(datagramSocket, request, new InetSocketAddress(routingTableEntry.getIP(),
+                            routingTableEntry.getPort()).getAddress(), routingTableEntry.getPort());
+                    logger.log(Level.INFO, "Sent SER requests to neighbor: ip " + routingTableEntry.getIP() +
+                            " port: " + routingTableEntry.getPort());
+                }
             } catch (IOException e) {
                 logger.log(Level.WARNING, "Handling SER request failed", e);
             }
