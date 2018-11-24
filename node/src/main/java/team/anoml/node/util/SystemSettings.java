@@ -42,7 +42,7 @@ public class SystemSettings {
     public static final String LEAVE_MSG = "LEAVE";
     public static final String NBR_MSG = "NBR";
     public static final String HB_MSG = "HB";
-    public static final String SEARCH_MSG = "SEARCH";
+    public static final String SER_MSG = "SER";
 
     /********************************************
      * Response Types
@@ -53,7 +53,14 @@ public class SystemSettings {
     public static final String LEAVEOK_MSG = "LEAVEOK";
     public static final String NBROK_MSG = "NBROK";
     public static final String HBOK_MSG = "HBOK";
-    public static final String SEARCHOK_MSG = "SEARCHOK";
+    public static final String SEROK_MSG = "SEROK";
+
+    /********************************************
+     * TCP Communication
+     ********************************************/
+
+    public static final String DOWN_MSG_FORMAT = "DOWN %s";
+    public static final String DOWN_MSG = "DOWN";
 
     /********************************************
      * Configurations
@@ -117,4 +124,9 @@ public class SystemSettings {
     public static int getUDPHeartbeatDelay() {
         return Integer.valueOf(properties.getProperty("server.udp.heartbeat.delay", "30000"));
     }
+
+    public static int getTCPPort() {
+        return Integer.valueOf(properties.getProperty("server.tcp.port", "9191"));
+    }
+
 }

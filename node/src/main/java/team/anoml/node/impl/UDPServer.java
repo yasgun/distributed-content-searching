@@ -26,7 +26,7 @@ public class UDPServer implements NodeServer {
     private Timer timer = new Timer(true);
     private Executor executor = Executors.newSingleThreadExecutor();
 
-    private static boolean listening = false;
+    private boolean listening = false;
     private final int port = SystemSettings.getUDPPort();
 
     @Override
@@ -79,11 +79,12 @@ public class UDPServer implements NodeServer {
                         executor.execute(new Thread(neighbourRequestHandler));
                         break;
                     case SystemSettings.HB_MSG:
-                        AbstractHandler heartbeatRequestHandler = new HeartbeatRequestHandler();
+                        HeartbeatRequestHandler heartbeatRequestHandler = new HeartbeatRequestHandler();
                         heartbeatRequestHandler.setMessage(incomingResult[2]);
+                        heartbeatRequestHandler.setUdpServer(this);
                         executor.execute(new Thread(heartbeatRequestHandler));
                         break;
-                    case SystemSettings.SEARCH_MSG:
+                    case SystemSettings.SER_MSG:
                         AbstractHandler searchRequestHandler = new SearchRequestHandler();
                         searchRequestHandler.setMessage(incomingResult[2]);
                         executor.execute(new Thread(searchRequestHandler));
@@ -113,14 +114,14 @@ public class UDPServer implements NodeServer {
                         heartbeatResponseHandler.setMessage(incomingResult[2]);
                         executor.execute(new Thread(heartbeatResponseHandler));
                         break;
-                    case SystemSettings.SEARCHOK_MSG:
+                    case SystemSettings.SEROK_MSG:
                         AbstractHandler searchResponseHandler = new SearchResponseHandler();
                         searchResponseHandler.setMessage(incomingResult[2]);
                         executor.execute(new Thread(searchResponseHandler));
                         break;
                 }
-            } catch (IOException e) {
-                logger.log(Level.WARNING, "Error occurred while listening", e);
+            } catch (Exception e) {
+                logger.log(Level.WARNING, "Error occurred while UDP listening", e);
             }
         }
     }
@@ -154,7 +155,7 @@ public class UDPServer implements NodeServer {
         startServer();
     }
 
-    public static String getHealthStatus() {
+    public String getHealthStatus() {
         if (listening) {
             return "GREEN";
         } else {

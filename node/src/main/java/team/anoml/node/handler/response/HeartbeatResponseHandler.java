@@ -1,8 +1,5 @@
 package team.anoml.node.handler.response;
 
-/**
- * Created by ashenwgt on 11/24/18.
- */
 public class HeartbeatResponseHandler extends AbstractResponseHandler {
     @Override
     protected void handleResponse() {
