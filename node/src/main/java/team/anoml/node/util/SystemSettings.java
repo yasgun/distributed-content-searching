@@ -21,7 +21,7 @@ public class SystemSettings {
      * Communication with the Other Nodes
      ********************************************/
 
-    public static final String JOIN_MSG_FORMAT = "JOIN %s %d %s";
+    public static final String JOIN_MSG_FORMAT = "JOIN %s %d";
     public static final String JOINOK_MSG_FORMAT = "JOINOK %d";
     public static final String LEAVE_MSG_FORMAT = "LEAVE %s %d";
     public static final String LEAVEOK_MSG_FORMAT = "LEAVEOK %d";

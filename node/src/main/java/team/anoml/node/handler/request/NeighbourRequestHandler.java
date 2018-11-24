@@ -66,7 +66,7 @@ public class NeighbourRequestHandler extends AbstractRequestHandler {
 
             String response = String.format(SystemSettings.NBROK_MSG_FORMAT, neighborDetailsSize, neighborDetails
                     .toString().trim());
-            sendResponse(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
+            sendMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
             logger.log(Level.INFO, "Sent neighbor details no of neighbors: " + neighborDetailsSize + " details: " +
                     neighborDetails + " to " + ipAddress + ":" + port);
         } catch (IOException e) {
