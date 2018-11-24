@@ -6,7 +6,7 @@ import team.anoml.node.core.RoutingTableEntry;
 import team.anoml.node.exception.NodeException;
 import team.anoml.node.impl.TCPServer;
 import team.anoml.node.impl.UDPServer;
-import team.anoml.node.util.PrintUtils;
+import team.anoml.node.util.NodeUtils;
 import team.anoml.node.util.SystemSettings;
 
 import java.io.BufferedReader;
@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.Executor;
@@ -96,7 +98,7 @@ public class Node {
                 throw new NodeException("Starting node failed", new Throwable("Unknown message format"));
             }
 
-
+            generateFiles();
 
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Starting node failed", e);
@@ -122,10 +124,10 @@ public class Node {
 
                 switch (command) {
                     case SystemSettings.SHOW_FILES:
-                        PrintUtils.printFileTable(fileTable);
+                        NodeUtils.printFileTable(fileTable);
                         break;
                     case SystemSettings.SHOW_ROUTES:
-                        PrintUtils.printRoutingTable(routingTable);
+                        NodeUtils.printRoutingTable(routingTable);
                         break;
                     case SystemSettings.SEARCH:
                         break;
@@ -192,6 +194,29 @@ public class Node {
         try {
             Thread.sleep(SystemSettings.getShutdownGracePeriod());
         } catch (InterruptedException ignored) {
+        }
+    }
+
+    private static void generateFiles() {
+
+        String[] fileNames = SystemSettings.FILE_NAMES;
+
+        Random random = new Random();
+
+        //Each node contributing 3-5 files
+        int noOfFiles = random.nextInt(3) + 3;
+
+        ArrayList<Integer> list = new ArrayList<>();
+
+        for (int i = 1; i < fileNames.length; i++) {
+            list.add(i);
+        }
+
+        Collections.shuffle(list);
+
+        for (int i = 0; i < noOfFiles; i++) {
+            //generating files
+            
         }
     }
 }

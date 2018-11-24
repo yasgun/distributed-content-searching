@@ -1,7 +1,5 @@
 package team.anoml.node.core.service;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
@@ -28,12 +26,6 @@ public class FileCreator {
         }
 
         logger.log(Level.INFO, "Temporary file generated with random content");
-
-        String md5Hash = DigestUtils.md5Hex(new FileInputStream(file)).toUpperCase();
-        String sha1Hash = DigestUtils.sha1Hex(new FileInputStream(file)).toUpperCase();
-
-        logger.log(Level.INFO, "checksum value (md5): \"{}\"", md5Hash);
-        logger.log(Level.INFO, "checksum value (sha1): \"{}\"", sha1Hash);
 
         return file;
     }
