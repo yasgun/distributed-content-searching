@@ -1,7 +1,6 @@
 package team.anoml.node.handler.response;
 
 import team.anoml.node.core.RoutingTableEntry;
-import team.anoml.node.handler.request.JoinRequestHandler;
 import team.anoml.node.util.SystemSettings;
 
 import java.io.IOException;
@@ -12,7 +11,7 @@ import java.util.logging.Logger;
 
 public class NeighbourResponseHandler extends AbstractResponseHandler {
 
-    private static Logger logger = Logger.getLogger(JoinRequestHandler.class.getName());
+    private static Logger logger = Logger.getLogger(NeighbourResponseHandler.class.getName());
 
     @Override
     protected void handleResponse() {

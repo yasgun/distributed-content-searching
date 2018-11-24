@@ -9,7 +9,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class LeaveRequestHandler extends AbstractRequestHandler {
-    private static Logger logger = Logger.getLogger(JoinRequestHandler.class.getName());
+
+    private static Logger logger = Logger.getLogger(LeaveRequestHandler.class.getName());
 
     @Override
     protected void handleRequest() {
