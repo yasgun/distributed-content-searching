@@ -11,7 +11,6 @@ import team.anoml.node.task.GossipingTimerTask;
 import team.anoml.node.task.HeartbeatTimerTask;
 import team.anoml.node.util.SystemSettings;
 
-import java.io.IOException;
 import java.net.*;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -80,7 +79,7 @@ public class UDPServer implements NodeServer {
                         neighbourRequestHandler.setMessage(incomingResult[2]);
                         executor.execute(new Thread(neighbourRequestHandler));
                         break;
-                    case SystemSettings.SEARCH_MSG:
+                    case SystemSettings.SER_MSG:
                         AbstractHandler searchRequestHandler = new SearchRequestHandler();
                         searchRequestHandler.setMessage(incomingResult[2]);
                         executor.execute(new Thread(searchRequestHandler));
@@ -105,14 +104,14 @@ public class UDPServer implements NodeServer {
                         neighbourResponseHandler.setMessage(incomingResult[2]);
                         executor.execute(new Thread(neighbourResponseHandler));
                         break;
-                    case SystemSettings.SEARCHOK_MSG:
+                    case SystemSettings.SEROK_MSG:
                         AbstractHandler searchResponseHandler = new SearchResponseHandler();
                         searchResponseHandler.setMessage(incomingResult[2]);
                         executor.execute(new Thread(searchResponseHandler));
                         break;
                 }
-            } catch (IOException e) {
-                logger.log(Level.WARNING, "Error occurred while listening", e);
+            } catch (Exception e) {
+                logger.log(Level.WARNING, "Error occurred while UDP listening", e);
             }
         }
     }

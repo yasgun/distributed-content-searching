@@ -13,12 +13,16 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Random;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Node {
 
     private static Logger logger = Logger.getLogger(Node.class.getName());
+
+    private Executor executor = Executors.newSingleThreadExecutor();
 
     private static UDPServer udpServer;
     private static TCPServer tcpServer;
