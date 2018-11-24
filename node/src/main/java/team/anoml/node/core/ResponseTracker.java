@@ -10,7 +10,7 @@ public class ResponseTracker {
     private ConcurrentHashMap<String, Date> waitingResponses = new ConcurrentHashMap<>();
 
     private ResponseTracker() {
-        //nothing is required here
+        //nothing required here
     }
 
     public static ResponseTracker getResponseTracker() {

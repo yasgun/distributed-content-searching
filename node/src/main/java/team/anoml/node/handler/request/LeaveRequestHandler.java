@@ -20,7 +20,7 @@ public class LeaveRequestHandler extends AbstractRequestHandler {
 
         try (DatagramSocket datagramSocket = new DatagramSocket()) {
             String response = String.format(SystemSettings.LEAVEOK_MSG_FORMAT, 0);
-            sendResponse(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
+            sendMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
             getRoutingTable().removeEntry(ipAddress);
             logger.log(Level.INFO, "Added ip: " + ipAddress + " removed from routing table");
         } catch (IOException e) {

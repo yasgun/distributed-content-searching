@@ -21,7 +21,7 @@ public class JoinRequestHandler extends AbstractRequestHandler {
 
         try (DatagramSocket datagramSocket = new DatagramSocket()) {
             String response = String.format(SystemSettings.JOINOK_MSG_FORMAT, 0);
-            sendResponse(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
+            sendMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
             getRoutingTable().addEntry(new RoutingTableEntry(ipAddress, port));
             logger.log(Level.INFO, "Added ip: " + ipAddress + " port: " + port + " to routing table");
         } catch (IOException e) {

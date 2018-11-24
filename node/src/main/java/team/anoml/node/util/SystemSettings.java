@@ -21,13 +21,16 @@ public class SystemSettings {
      * Communication with the Other Nodes
      ********************************************/
 
-    public static final String JOIN_MSG_FORMAT = "JOIN %s %d %s";
+    public static final String JOIN_MSG_FORMAT = "JOIN %s %d";
     public static final String JOINOK_MSG_FORMAT = "JOINOK %d";
     public static final String LEAVE_MSG_FORMAT = "LEAVE %s %d";
     public static final String LEAVEOK_MSG_FORMAT = "LEAVEOK %d";
 
     public static final String NBR_MSG_FORMAT = "NBR %s %d";
     public static final String NBROK_MSG_FORMAT = "NBROK %d %s";
+
+    public static final String HB_MSG_FORMAT = "HB %s %d";
+    public static final String HBOK_MSG_FORMAT = "HBOK %s";
 
     public static final String ERROR_MSG_FORMAT = "ERROR %s";
 
@@ -38,6 +41,7 @@ public class SystemSettings {
     public static final String JOIN_MSG = "JOIN";
     public static final String LEAVE_MSG = "LEAVE";
     public static final String NBR_MSG = "NBR";
+    public static final String HB_MSG = "HB";
     public static final String SER_MSG = "SER";
 
     /********************************************
@@ -48,6 +52,7 @@ public class SystemSettings {
     public static final String JOINOK_MSG = "JOINOK";
     public static final String LEAVEOK_MSG = "LEAVEOK";
     public static final String NBROK_MSG = "NBROK";
+    public static final String HBOK_MSG = "HBOK";
     public static final String SEROK_MSG = "SEROK";
 
     /********************************************
