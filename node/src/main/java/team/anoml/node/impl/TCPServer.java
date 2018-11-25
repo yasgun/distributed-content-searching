@@ -50,6 +50,7 @@ public class TCPServer implements NodeServer {
     @Override
     public void run() {
         logger.log(Level.INFO, "Starting TCP server...");
+        port(SystemSettings.getTCPPort());
         startServer();
         logger.log(Level.INFO, "TCP server started");
     }
