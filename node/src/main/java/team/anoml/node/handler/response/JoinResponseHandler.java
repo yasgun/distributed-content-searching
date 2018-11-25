@@ -20,7 +20,6 @@ public class JoinResponseHandler extends AbstractResponseHandler {
 
     @Override
     protected void handleResponse() {
-        //TODO: fix this
         String[] parts = getMessage().split(" ");
 
         int value = Integer.parseInt(parts[0]);
@@ -28,7 +27,6 @@ public class JoinResponseHandler extends AbstractResponseHandler {
         boolean isTracked = ResponseTracker.getResponseTracker().consumeWaitingResponse(SystemSettings.NBROK_MSG + ":" + ipAddress);
 
         if (isTracked) {
-            //TODO: need to check value of the response - ip and port not in the message (check document)
             if (value == 0){
                 getRoutingTable().getEntryByIP(ipAddress).validate();
                 logger.log(Level.INFO, "Validated ip: " + ipAddress + " port: " + port + " in routing table");
