@@ -57,6 +57,8 @@ public class Node {
 
             String response = String.valueOf(chars, 0, read);
 
+            logger.log(Level.INFO, response);
+
             String[] parts = response.split(" ");
             String noOfNodes = parts[2];
 
@@ -89,6 +91,7 @@ public class Node {
                         routingTable.addEntry(new RoutingTableEntry(parts[(randInt1 + 1) * 2 + 1], Integer.valueOf(parts[(randInt1 + 1) * 2 + 2])));
                         break;
                 }
+
             } else {
                 throw new NodeException("Starting node failed", new Throwable("Unknown message format"));
             }
@@ -119,26 +122,35 @@ public class Node {
 
                 switch (command) {
                     case SystemSettings.SHOW_FILES:
+                        System.out.println("Printing File Table...");
                         NodeUtils.printFileTable(fileTable);
                         break;
                     case SystemSettings.SHOW_ROUTES:
+                        System.out.println("Printing Routing Table...");
                         NodeUtils.printRoutingTable(routingTable);
                         break;
                     case SystemSettings.SEARCH:
+                        System.out.println("Executing Search Request...");
+                        //TODO: check whether file table contains matching files
+                        //TODO: if yes print them else send SER requests to neighbours
+                        //TODO: print SEROK results - need to decide how to print (wait here or not)
                         break;
                     case SystemSettings.DOWNLOAD:
+                        System.out.println("Executing Download Request...");
+                        //TODO: send download request to destination TCP server and handle download
                         break;
                     case SystemSettings.EXIT:
-                        System.out.println("Terminating node...");
+                        System.out.println("Terminating Node...");
                         stopServers();
-                        System.out.println("Node terminated successfully");
                         break;
                 }
 
             } catch (Exception e) {
-                System.out.println("Invalid request! Please try again");
+                System.out.println("Invalid Request! Please Try Again");
             }
         }
+
+        System.out.printf("Good Bye! Node Terminated Successfully");
     }
 
     private static void startServers() {
@@ -173,6 +185,7 @@ public class Node {
         try {
             Thread.sleep(SystemSettings.getShutdownGracePeriod());
         } catch (InterruptedException ignored) {
+
         }
     }
 

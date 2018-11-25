@@ -55,6 +55,5 @@ public class GossipingTimerTask extends TimerTask {
             } catch (InterruptedException ignored) {
             }
         }
-
     }
 }

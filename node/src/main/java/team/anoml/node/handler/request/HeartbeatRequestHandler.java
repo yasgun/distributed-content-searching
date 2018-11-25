@@ -13,8 +13,6 @@ public class HeartbeatRequestHandler extends AbstractRequestHandler {
 
     private static Logger logger = Logger.getLogger(HeartbeatRequestHandler.class.getName());
 
-    private UDPServer udpServer;
-
     @Override
     protected void handleRequest() {
         String[] parts = getMessage().split(" ");
@@ -23,16 +21,11 @@ public class HeartbeatRequestHandler extends AbstractRequestHandler {
         int port = Integer.parseInt(parts[1]);
 
         try (DatagramSocket datagramSocket = new DatagramSocket()) {
-            String healthStatus = udpServer.getHealthStatus();
-            String response = String.format(SystemSettings.HBOK_MSG_FORMAT, healthStatus);
+            String response = String.format(SystemSettings.HBOK_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
             sendMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
-            logger.log(Level.INFO, "Sent health status : " + healthStatus + " to " + ipAddress + ":" + port);
+            logger.log(Level.INFO, "Sent HB response to " + ipAddress + ":" + port);
         } catch (IOException e) {
             logger.log(Level.WARNING, "Handling HB request failed", e);
         }
-    }
-
-    public void setUdpServer(UDPServer udpServer) {
-        this.udpServer = udpServer;
     }
 }

@@ -14,11 +14,11 @@ import java.util.Random;
 public class NodeUtils {
 
     public static void printRoutingTable(RoutingTable routingTable) {
-
+        //TODO: print routing table on terminal
     }
 
     public static void printFileTable(FileTable fileTable) {
-
+        //TODO: print file table on terminal
     }
 
     public static String getMD5Hex(File file) throws IOException {

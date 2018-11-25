@@ -43,7 +43,7 @@ public class SystemSettings {
     public static final String NBROK_MSG_FORMAT = "NBROK %d %s";
 
     public static final String HB_MSG_FORMAT = "HB %s %d";
-    public static final String HBOK_MSG_FORMAT = "HBOK %s";
+    public static final String HBOK_MSG_FORMAT = "HBOK %s %d";
 
     public static final String ERROR_MSG_FORMAT = "ERROR %s";
 
@@ -146,6 +146,10 @@ public class SystemSettings {
 
     public static String getFilePath() {
         return properties.getProperty("node.file_path", "/files/");
+    }
+
+    public static int getRoutingTableLimit() {
+        return Integer.valueOf(properties.getProperty("node.routing_table_limit", "50"));
     }
 
     public static int getRequestTryCount() {

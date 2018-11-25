@@ -27,7 +27,6 @@ public class TCPServer implements NodeServer {
         }
 
         try {
-            Runtime.getRuntime().addShutdownHook(new Thread(this::stopServer));
             listen();
         } catch (Exception e) {
             logger.log(Level.WARNING, "TCP listening failed");
@@ -62,7 +61,9 @@ public class TCPServer implements NodeServer {
 
     @Override
     public void stopServer() {
-
+        if (listening) {
+            listening = false;
+        }
     }
 
     @Override

@@ -35,7 +35,6 @@ public class UDPServer implements NodeServer {
         }
 
         try {
-            Runtime.getRuntime().addShutdownHook(new Thread(this::stopServer));
             listen();
         } catch (Exception e) {
             logger.log(Level.WARNING, "UDP listening failed");
@@ -142,23 +141,11 @@ public class UDPServer implements NodeServer {
 
         if (listening) {
             listening = false;
-            try {
-                Thread.sleep(SystemSettings.getShutdownGracePeriod());
-            } catch (InterruptedException ignored) {
-            }
         }
     }
 
     @Override
     public void run() {
         startServer();
-    }
-
-    public String getHealthStatus() {
-        if (listening) {
-            return "GREEN";
-        } else {
-            return "RED";
-        }
     }
 }

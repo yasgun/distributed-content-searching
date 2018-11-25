@@ -1,7 +1,6 @@
 package team.anoml.node.core;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RoutingTable {

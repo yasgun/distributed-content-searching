@@ -20,10 +20,16 @@ public class JoinRequestHandler extends AbstractRequestHandler {
         int port = Integer.parseInt(parts[1]);
 
         try (DatagramSocket datagramSocket = new DatagramSocket()) {
-            String response = String.format(SystemSettings.JOINOK_MSG_FORMAT, 0);
-            sendMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
-            getRoutingTable().addEntry(new RoutingTableEntry(ipAddress, port));
-            logger.log(Level.INFO, "Added ip: " + ipAddress + " port: " + port + " to routing table");
+            if (getRoutingTable().getAllEntries().size() < SystemSettings.getRoutingTableLimit()) {
+                String response = String.format(SystemSettings.JOINOK_MSG_FORMAT, 0);
+                sendMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
+                getRoutingTable().addEntry(new RoutingTableEntry(ipAddress, port));
+                logger.log(Level.INFO, "Added ip: " + ipAddress + " port: " + port + " to routing table");
+            } else {
+                String response = String.format(SystemSettings.JOINOK_MSG_FORMAT, 9999);
+                sendMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
+                logger.log(Level.INFO, "Error while adding ip: " + ipAddress + " port: " + port + " to routing table. Routing table limit exceeded");
+            }
         } catch (IOException e) {
             logger.log(Level.WARNING, "Handling JOIN request failed", e);
         }

@@ -28,17 +28,16 @@ public class HeartbeatTimerTask extends TimerTask {
             String ipAddress = entry.getIP();
             int port = entry.getPort();
 
-            if (ResponseTracker.getResponseTracker().consumeWaitingResponse(SystemSettings.HBOK_MSG + ":" + ipAddress)){
-//                Remove table entry if there is no response from previous HB
+            if (ResponseTracker.getResponseTracker().consumeWaitingResponse(SystemSettings.HBOK_MSG + ":" + ipAddress)) {
+                // Remove table entry if there is no response from previous HB
                 RoutingTable.getRoutingTable().removeEntry(ipAddress);
                 logger.log(Level.INFO, "Ip: " + ipAddress + " port: " + port + " was removed from RoutingTable since no response to HB");
-            }
-            else{
+            } else {
                 try (DatagramSocket datagramSocket = new DatagramSocket()) {
-                    String response = String.format(SystemSettings.HB_MSG_FORMAT, ipAddress, 0);
+                    String response = String.format(SystemSettings.HB_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
                     sendRequest(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
                     ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.HBOK_MSG + ":" + ipAddress, new Date());
-                    logger.log(Level.INFO, "Requested health status from ip: " + ipAddress + " port: " + port);
+                    logger.log(Level.INFO, "Requested HB from ip: " + ipAddress + " port: " + port);
                 } catch (IOException e) {
                     logger.log(Level.WARNING, "Sending HB request failed", e);
                 }
@@ -60,6 +59,5 @@ public class HeartbeatTimerTask extends TimerTask {
             } catch (InterruptedException ignored) {
             }
         }
-
     }
 }
