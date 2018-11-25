@@ -57,6 +57,17 @@ public class GossipingTimerTask extends AbstractTimerTask {
                 if (i == randInt1 || i == randInt2) {
                     try (DatagramSocket datagramSocket = new DatagramSocket()) {
 
+                        String response = String.format(SystemSettings.LEAVE_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
+                        sendRequest(datagramSocket, response, new InetSocketAddress(entry.getIP(), entry.getPort()).getAddress(), entry.getPort());
+                        ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.LEAVEOK_MSG, entry.getIP(), entry.getPort(), new Date());
+                        logger.info("sent LEAVE request to ip: " + entry.getIP() + " port: " + entry.getPort());
+
+                    } catch (IOException e) {
+                        logger.info("Sending LEAVE request failed", e);
+                    }
+
+                    try (DatagramSocket datagramSocket = new DatagramSocket()) {
+
                         String response = String.format(SystemSettings.NBR_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
                         sendRequest(datagramSocket, response, new InetSocketAddress(entry.getIP(), entry.getPort()).getAddress(), entry.getPort());
                         ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.NBROK_MSG, entry.getIP(), entry.getPort(), new Date());

@@ -139,7 +139,7 @@ public class Node {
                         break;
                     case SystemSettings.DOWNLOAD:
                         System.out.println("Executing Download Request...");
-                        //TODO: send download request to destination TCP server and handle download
+                        downloadFile(incomingResult[1], incomingResult[2], Integer.valueOf(incomingResult[3]));
                         break;
                     case SystemSettings.EXIT:
                         System.out.println("Terminating Node...");
@@ -151,6 +151,8 @@ public class Node {
                 System.out.println("Invalid Request! Please Try Again");
             }
         }
+
+        System.exit(0);
     }
 
     private static void startServers() {
@@ -181,6 +183,20 @@ public class Node {
 
         tcpServer.stopServer();
         udpServer.stopServer();
+
+
+        for (RoutingTableEntry entry : routingTable.getAllEntries()) {
+            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+
+                String response = String.format(SystemSettings.LEAVE_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
+                sendUDPMessage(datagramSocket, response, new InetSocketAddress(entry.getIP(), entry.getPort()).getAddress(), entry.getPort());
+                ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.LEAVEOK_MSG, entry.getIP(), entry.getPort(), new Date());
+                logger.info("sent LEAVE request to ip: " + entry.getIP() + " port: " + entry.getPort());
+
+            } catch (IOException e) {
+                logger.info("Sending LEAVE request failed", e);
+            }
+        }
 
         try {
             Thread.sleep(SystemSettings.getShutdownGracePeriod());
@@ -272,5 +288,9 @@ public class Node {
             } catch (InterruptedException ignored) {
             }
         }
+    }
+
+    private static void downloadFile(String fileName, String ipAddress, int port) {
+        //TODO: add downloading logic here
     }
 }
