@@ -38,6 +38,8 @@ public class TCPServer implements NodeServer {
 
             return response.raw();
         });
+
+        init();
     }
 
     @Override
