@@ -1,5 +1,7 @@
 package team.anoml.node;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import team.anoml.node.core.*;
 import team.anoml.node.exception.NodeException;
 import team.anoml.node.impl.TCPServer;
@@ -8,16 +10,12 @@ import team.anoml.node.util.NodeUtils;
 import team.anoml.node.util.SystemSettings;
 
 import java.io.*;
-import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.net.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Node {
 
-    private static Logger logger = Logger.getLogger(Node.class.getName());
+    private static Logger logger = LogManager.getLogger(Node.class.getName());
 
     private static boolean running = false;
 
@@ -33,7 +31,7 @@ public class Node {
 
     public static void main(String[] args) {
 
-        logger.log(Level.INFO, "Connecting to Bootstrap Server at: " + bootstrapIP + " through port: " + bootstrapPort);
+        logger.info("Connecting to Bootstrap Server at: " + bootstrapIP + " through port: " + bootstrapPort);
 
         try (Socket clientSocket = new Socket(bootstrapIP, bootstrapPort);
              PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -47,25 +45,26 @@ public class Node {
 
             out.println(messageText);
 
-            char[] chars = new char[8192];
+            char[] chars = new char[SystemSettings.getMaxMessageCharSize()];
             int read;
             read = in.read(chars);
 
             String response = String.valueOf(chars, 0, read);
 
-            logger.log(Level.INFO, response);
+            logger.info("Response from BS: " + response);
 
             String[] parts = response.split(" ");
             String noOfNodes = parts[2];
 
             if (parts[1].equals(SystemSettings.ERROR_MSG)) {
+
                 throw new NodeException("Starting node failed", new Throwable("Error response: " + parts[2]));
 
             } else if (parts[1].equals(SystemSettings.REGOK_MSG)) {
 
                 switch (Integer.valueOf(noOfNodes)) {
                     case 0:
-                        //nothing to do until another node finds it out
+                        //nothing to do until another node finds out
                         break;
                     case 1:
                         routingTable.addEntry(new RoutingTableEntry(parts[3], Integer.valueOf(parts[4])));
@@ -83,8 +82,9 @@ public class Node {
                             randInt2 = random.nextInt(Integer.valueOf(noOfNodes));
                         }
 
-                        routingTable.addEntry(new RoutingTableEntry(parts[(randInt1 + 1) * 2 + 1], Integer.valueOf(parts[(randInt1 + 1) * 2 + 2])));
-                        routingTable.addEntry(new RoutingTableEntry(parts[(randInt1 + 1) * 2 + 1], Integer.valueOf(parts[(randInt1 + 1) * 2 + 2])));
+                        routingTable.addEntry(new RoutingTableEntry(parts[(randInt1) * 2 + 3], Integer.valueOf(parts[(randInt1) * 2 + 3])));
+                        routingTable.addEntry(new RoutingTableEntry(parts[(randInt2) * 2 + 3], Integer.valueOf(parts[(randInt2) * 2 + 3])));
+
                         break;
                 }
 
@@ -95,12 +95,12 @@ public class Node {
             generateFiles();
 
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Starting node failed", e);
+            logger.error("Starting node failed", e);
             throw new NodeException("Starting node failed", e);
         }
 
         for (RoutingTableEntry entry : routingTable.getAllEntries()) {
-            logger.log(Level.INFO, entry.getIP() + ":" + entry.getPort());
+            logger.info("Entry " + entry.getIP() + ":" + entry.getPort());
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(Node::stopServers));
@@ -115,28 +115,27 @@ public class Node {
 
                 String[] incomingResult = request.split(" ", 3);
                 String command = incomingResult[0];
-                String fileName = incomingResult[1];
 
                 switch (command) {
                     case SystemSettings.SHOW_FILES:
-                        System.out.println("Printing File Table...");
                         NodeUtils.printFileTable(fileTable);
                         break;
                     case SystemSettings.SHOW_ROUTES:
-                        System.out.println("Printing Routing Table...");
                         NodeUtils.printRoutingTable(routingTable);
                         break;
                     case SystemSettings.SEARCH:
                         System.out.println("Executing Search Request...");
-                        //TODO: check whether file table contains matching files using regex
-                        FileTableEntry entry =fileTable.getEntryByFileName(fileName);
-                        if (entry == null){
-                            sendSearchReq(fileName);
-                        }else{
-                            System.out.println("File found :" + entry.getFileName());
-                            // TODO: What do we do next?
+                        String fileName = incomingResult[1];
+
+                        Collection<FileTableEntry> entries = fileTable.getEntriesByFileNameRegex(fileName);
+                        if (entries == null) {
+                            sendSearchRequest(fileName);
+                        } else {
+                            System.out.println("Files found in this node:");
+                            for (FileTableEntry entry : entries) {
+                                System.out.println(entry.getFileName());
+                            }
                         }
-                        //TODO: print SEROK results - need to decide how to print (wait here or not)
                         break;
                     case SystemSettings.DOWNLOAD:
                         System.out.println("Executing Download Request...");
@@ -144,7 +143,7 @@ public class Node {
                         break;
                     case SystemSettings.EXIT:
                         System.out.println("Terminating Node...");
-                        stopServers();
+                        running = false;
                         break;
                 }
 
@@ -152,8 +151,6 @@ public class Node {
                 System.out.println("Invalid Request! Please Try Again");
             }
         }
-
-        System.out.printf("Good Bye! Node Terminated Successfully");
     }
 
     private static void startServers() {
@@ -192,33 +189,6 @@ public class Node {
         }
     }
 
-    private static String sendUnregisterMessage() {
-        String response = null;
-
-        try (Socket clientSocket = new Socket(bootstrapIP, bootstrapPort);
-             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
-
-            String messageText = String.format(SystemSettings.UNREG_MSG_FORMAT, bootstrapIP, bootstrapPort, username);
-
-            String lengthText = "0000" + (messageText.length() + 5);
-            lengthText = lengthText.substring(lengthText.length() - 4);
-            messageText = lengthText + " " + messageText;
-
-            out.println(messageText);
-
-            char[] chars = new char[8192];
-            int read;
-            read = in.read(chars);
-
-            response = String.valueOf(chars, 0, read);
-
-        } catch (IOException e) {
-            logger.log(Level.WARNING, "Sending unregister message to bootstrap server failed", e);
-        }
-        return response;
-    }
-
     private static void generateFiles() throws IOException {
 
         String[] fileNames = SystemSettings.FILE_NAMES;
@@ -243,7 +213,34 @@ public class Node {
         }
     }
 
-    private static void sendSearchReq(String fileName){
+    private static String sendUnregisterMessage() {
+        String response = null;
+
+        try (Socket clientSocket = new Socket(bootstrapIP, bootstrapPort);
+             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
+
+            String messageText = String.format(SystemSettings.UNREG_MSG_FORMAT, bootstrapIP, bootstrapPort, username);
+
+            String lengthText = "0000" + (messageText.length() + 5);
+            lengthText = lengthText.substring(lengthText.length() - 4);
+            messageText = lengthText + " " + messageText;
+
+            out.println(messageText);
+
+            char[] chars = new char[SystemSettings.getMaxMessageCharSize()];
+            int read;
+            read = in.read(chars);
+
+            response = String.valueOf(chars, 0, read);
+
+        } catch (IOException e) {
+            logger.warn("Sending unregister message to bootstrap server failed", e);
+        }
+        return response;
+    }
+
+    private static void sendSearchRequest(String fileName) {
         Collection<RoutingTableEntry> routingTableEntries = RoutingTable.getRoutingTable().getAllEntries();
 
         for (RoutingTableEntry entry : routingTableEntries) {
@@ -251,13 +248,28 @@ public class Node {
             int port = entry.getPort();
 
             try (DatagramSocket datagramSocket = new DatagramSocket()) {
-                // TODO: Add the number of hops as a system setting
-                String response = String.format(SystemSettings.SER_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort(), fileName, 10);
-                NodeUtils.sendRequest(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
-                ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.SEROK_MSG + ":" + ipAddress, new Date());
-                logger.log(Level.INFO, "Requested a search for "+ fileName +" from ip: " + ipAddress + " port: " + port);
+                String response = String.format(SystemSettings.SER_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort(), fileName, 0);
+                sendUDPMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
+                ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.SEROK_MSG, ipAddress, port, new Date());
+                logger.info("Requested a search for " + fileName + " from ip: " + ipAddress + " port: " + port);
             } catch (IOException e) {
-                logger.log(Level.WARNING, "Sending SER request failed", e);
+                logger.error("Sending SER request failed", e);
+            }
+        }
+    }
+
+    private static void sendUDPMessage(DatagramSocket datagramSocket, String response, InetAddress address, int port) throws IOException {
+        String lengthText = "0000" + (response.length() + 5);
+        lengthText = lengthText.substring(lengthText.length() - 4);
+        response = lengthText + " " + response;
+
+        DatagramPacket datagramPacket = new DatagramPacket(response.getBytes(), response.length(), address, port);
+
+        for (int i = 0; i < SystemSettings.getRequestTryCount(); i++) {
+            datagramSocket.send(datagramPacket);
+            try {
+                Thread.sleep(SystemSettings.getRequestTryDelay());
+            } catch (InterruptedException ignored) {
             }
         }
     }

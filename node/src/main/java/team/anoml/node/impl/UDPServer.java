@@ -1,5 +1,7 @@
 package team.anoml.node.impl;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import team.anoml.node.api.NodeServer;
 import team.anoml.node.handler.AbstractHandler;
 import team.anoml.node.handler.request.*;
@@ -15,12 +17,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class UDPServer implements NodeServer {
 
-    private static Logger logger = Logger.getLogger(UDPServer.class.getName());
+    private static Logger logger = LogManager.getLogger(UDPServer.class.getName());
 
     private Timer timer = new Timer(true);
     private Executor executor = Executors.newSingleThreadExecutor();
@@ -37,7 +37,7 @@ public class UDPServer implements NodeServer {
         try {
             listen();
         } catch (Exception e) {
-            logger.log(Level.WARNING, "UDP listening failed");
+            logger.warn("UDP listening failed");
         }
     }
 
@@ -50,7 +50,7 @@ public class UDPServer implements NodeServer {
 
         while (listening) {
             try {
-                byte[] buffer = new byte[65536];
+                byte[] buffer = new byte[SystemSettings.getMaxMessageCharSize() * 8];
                 DatagramPacket incoming = new DatagramPacket(buffer, buffer.length);
                 datagramSocket.receive(incoming);
 
@@ -63,65 +63,53 @@ public class UDPServer implements NodeServer {
                 String[] incomingResult = request.split(" ", 3);
                 String command = incomingResult[1];
 
+                AbstractHandler handler = null;
+
                 switch (command) {
                     case SystemSettings.JOIN_MSG:
-                        AbstractHandler joinRequestHandler = new JoinRequestHandler();
-                        joinRequestHandler.setMessage(incomingResult[2]);
-                        executor.execute(new Thread(joinRequestHandler));
+                        handler = new JoinRequestHandler();
                         break;
                     case SystemSettings.LEAVE_MSG:
-                        AbstractHandler leaveRequestHandler = new LeaveRequestHandler();
-                        leaveRequestHandler.setMessage(incomingResult[2]);
-                        executor.execute(new Thread(leaveRequestHandler));
+                        handler = new LeaveRequestHandler();
                         break;
                     case SystemSettings.NBR_MSG:
-                        AbstractHandler neighbourRequestHandler = new NeighbourRequestHandler();
-                        neighbourRequestHandler.setMessage(incomingResult[2]);
-                        executor.execute(new Thread(neighbourRequestHandler));
+                        handler = new NeighbourRequestHandler();
                         break;
                     case SystemSettings.HB_MSG:
-                        HeartbeatRequestHandler heartbeatRequestHandler = new HeartbeatRequestHandler();
-                        heartbeatRequestHandler.setMessage(incomingResult[2]);
-                        executor.execute(new Thread(heartbeatRequestHandler));
+                        handler = new HeartbeatRequestHandler();
                         break;
                     case SystemSettings.SER_MSG:
-                        AbstractHandler searchRequestHandler = new SearchRequestHandler();
-                        searchRequestHandler.setMessage(incomingResult[2]);
-                        executor.execute(new Thread(searchRequestHandler));
+                        handler = new SearchRequestHandler();
                         break;
                     case SystemSettings.ERROR_MSG:
-                        AbstractHandler errorResponseHandler = new ErrorResponseHandler();
-                        errorResponseHandler.setMessage(incomingResult[2]);
-                        executor.execute(new Thread(errorResponseHandler));
+                        handler = new ErrorResponseHandler();
                         break;
                     case SystemSettings.JOINOK_MSG:
-                        JoinResponseHandler joinResponseHandler = new JoinResponseHandler();
-                        joinResponseHandler.setMessage(incomingResult[2], clientIp, clientPort);
-                        executor.execute(new Thread(joinResponseHandler));
+                        handler = new JoinResponseHandler();
                         break;
                     case SystemSettings.LEAVEOK_MSG:
-                        AbstractHandler leaveResponseHandler = new LeaveResponseHandler();
-                        leaveResponseHandler.setMessage(incomingResult[2]);
-                        executor.execute(new Thread(leaveResponseHandler));
+                        handler = new LeaveResponseHandler();
                         break;
                     case SystemSettings.NBROK_MSG:
-                        AbstractHandler neighbourResponseHandler = new NeighbourResponseHandler();
-                        neighbourResponseHandler.setMessage(incomingResult[2]);
-                        executor.execute(new Thread(neighbourResponseHandler));
+                        handler = new NeighbourResponseHandler();
                         break;
                     case SystemSettings.HBOK_MSG:
-                        AbstractHandler heartbeatResponseHandler = new HeartbeatResponseHandler();
-                        heartbeatResponseHandler.setMessage(incomingResult[2]);
-                        executor.execute(new Thread(heartbeatResponseHandler));
+                        handler = new HeartbeatResponseHandler();
                         break;
                     case SystemSettings.SEROK_MSG:
-                        AbstractHandler searchResponseHandler = new SearchResponseHandler();
-                        searchResponseHandler.setMessage(incomingResult[2]);
-                        executor.execute(new Thread(searchResponseHandler));
+                        handler = new SearchResponseHandler();
                         break;
                 }
+
+                if (handler != null) {
+                    handler.setMessage(incomingResult[2]);
+                    handler.setClientIpAddress(clientIp);
+                    handler.setClientPort(clientPort);
+                    executor.execute(new Thread(handler));
+                }
+
             } catch (Exception e) {
-                logger.log(Level.WARNING, "Error occurred while UDP listening", e);
+                logger.error("Error occurred while UDP listening", e);
             }
         }
     }

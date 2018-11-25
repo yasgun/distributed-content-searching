@@ -17,19 +17,11 @@ public class ResponseTracker {
         return responseTracker;
     }
 
-    public synchronized boolean addWaitingResponse(String responseKey, Date requestTime) {
-        if (waitingResponses.containsKey(responseKey)) {
-            return false;
-        }
-        waitingResponses.put(responseKey, requestTime);
-        return true;
+    public void addWaitingResponse(String requestType, String ip, int port, Date requestTime) {
+        waitingResponses.put(requestType + ":" + ip + ":" + port, requestTime);
     }
 
-    public synchronized boolean consumeWaitingResponse(String responseKey) {
-        if (waitingResponses.containsKey(responseKey)) {
-            waitingResponses.remove(responseKey);
-            return true;
-        }
-        return false;
+    public boolean consumeWaitingResponse(String requestType, String ip, int port) {
+        return waitingResponses.remove(requestType + ":" + ip + ":" + port) != null;
     }
 }

@@ -1,13 +1,13 @@
 package team.anoml.node.handler.response;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import team.anoml.node.core.ResponseTracker;
 import team.anoml.node.util.SystemSettings;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 public class HeartbeatResponseHandler extends AbstractResponseHandler {
-    private static Logger logger = Logger.getLogger(JoinResponseHandler.class.getName());
+
+    private static Logger logger = LogManager.getLogger(JoinResponseHandler.class.getName());
 
     @Override
     protected void handleResponse() {
@@ -16,7 +16,8 @@ public class HeartbeatResponseHandler extends AbstractResponseHandler {
         String ipAddress = parts[0];
         int port = Integer.parseInt(parts[1]);
 
-        ResponseTracker.getResponseTracker().consumeWaitingResponse(SystemSettings.HBOK_MSG + ":" + ipAddress);
-        logger.log(Level.INFO, "Received HB OK from : " + ipAddress + " port: " + port );
+        if (ResponseTracker.getResponseTracker().consumeWaitingResponse(SystemSettings.HBOK_MSG, ipAddress, port)) {
+            logger.info("Received HB OK from : " + ipAddress + " port: " + port);
+        }
     }
 }

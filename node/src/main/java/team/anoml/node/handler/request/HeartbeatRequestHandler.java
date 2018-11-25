@@ -1,17 +1,16 @@
 package team.anoml.node.handler.request;
 
-import team.anoml.node.impl.UDPServer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import team.anoml.node.util.SystemSettings;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class HeartbeatRequestHandler extends AbstractRequestHandler {
 
-    private static Logger logger = Logger.getLogger(HeartbeatRequestHandler.class.getName());
+    private static Logger logger = LogManager.getLogger(HeartbeatRequestHandler.class.getName());
 
     @Override
     protected void handleRequest() {
@@ -22,10 +21,12 @@ public class HeartbeatRequestHandler extends AbstractRequestHandler {
 
         try (DatagramSocket datagramSocket = new DatagramSocket()) {
             String response = String.format(SystemSettings.HBOK_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
+
             sendMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
-            logger.log(Level.INFO, "Sent HB response to " + ipAddress + ":" + port);
+            logger.info("Sent HB response to " + ipAddress + ":" + port);
+
         } catch (IOException e) {
-            logger.log(Level.WARNING, "Handling HB request failed", e);
+            logger.error("Handling HB request failed", e);
         }
     }
 }

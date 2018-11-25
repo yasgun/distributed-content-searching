@@ -1,8 +1,14 @@
 package team.anoml.node.handler.response;
 
-public class LeaveResponseHandler extends AbstractResponseHandler{
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+public class LeaveResponseHandler extends AbstractResponseHandler {
+
+    private static Logger logger = LogManager.getLogger(LeaveResponseHandler.class.getName());
+
     @Override
     protected void handleResponse() {
-//        Nothing to be handled here
+        logger.warn("LEAVEOK: " + getMessage() + " from node " + getClientIpAddress() + ":" + getClientPort());
     }
 }

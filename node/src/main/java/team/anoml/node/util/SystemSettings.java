@@ -1,14 +1,15 @@
 package team.anoml.node.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class SystemSettings {
 
-    private static Logger logger = Logger.getLogger(SystemSettings.class.getName());
+    private static Logger logger = LogManager.getLogger(SystemSettings.class.getName());
 
     /********************************************
      * Keyboard Commands
@@ -116,7 +117,7 @@ public class SystemSettings {
         try (InputStream inputStream = SystemSettings.class.getClassLoader().getResourceAsStream(propFileName);) {
             properties.load(inputStream);
         } catch (IOException e) {
-            logger.log(Level.WARNING, "Reading Configuration Failed", e);
+            logger.error("Reading Configuration Failed", e);
         }
     }
 
@@ -125,7 +126,7 @@ public class SystemSettings {
     }
 
     public static int getBootstrapPort() {
-        return Integer.valueOf(properties.getProperty("bootstrap.port", "80"));
+        return Integer.valueOf(properties.getProperty("bootstrap.port", "9900"));
     }
 
     public static String getNodeIP() {
@@ -133,7 +134,7 @@ public class SystemSettings {
     }
 
     public static String getUsername() {
-        return properties.getProperty("node.username", "username");
+        return properties.getProperty("node.username", "anoml");
     }
 
     public static int getShutdownGracePeriod() {
@@ -152,6 +153,10 @@ public class SystemSettings {
         return Integer.valueOf(properties.getProperty("node.routing_table_limit", "50"));
     }
 
+    public static int getMaxMessageCharSize() {
+        return Integer.valueOf(properties.getProperty("node.message.max_char_size", "8192"));
+    }
+
     public static int getRequestTryCount() {
         return Integer.valueOf(properties.getProperty("request.try.count", "3"));
     }
@@ -161,7 +166,7 @@ public class SystemSettings {
     }
 
     public static int getUDPPort() {
-        return Integer.valueOf(properties.getProperty("server.udp.port", "1234"));
+        return Integer.valueOf(properties.getProperty("server.udp.port", "9901"));
     }
 
     public static int getUDPGossipPeriod() {
@@ -181,7 +186,7 @@ public class SystemSettings {
     }
 
     public static int getTCPPort() {
-        return Integer.valueOf(properties.getProperty("server.tcp.port", "9191"));
+        return Integer.valueOf(properties.getProperty("server.tcp.port", "9911"));
     }
 
 }

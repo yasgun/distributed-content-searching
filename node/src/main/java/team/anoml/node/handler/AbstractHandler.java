@@ -11,9 +11,12 @@ import java.net.InetAddress;
 
 public abstract class AbstractHandler implements Runnable {
 
+    private String clientIpAddress;
+    private int clientPort;
+    private String message;
+
     private RoutingTable routingTable = RoutingTable.getRoutingTable();
     private FileTable fileTable = FileTable.getFileTable();
-    private String message;
 
     public void setMessage(String message) {
         this.message = message;
@@ -35,6 +38,14 @@ public abstract class AbstractHandler implements Runnable {
         }
     }
 
+    public void setClientIpAddress(String clientIpAddress) {
+        this.clientIpAddress = clientIpAddress;
+    }
+
+    public void setClientPort(int clientPort) {
+        this.clientPort = clientPort;
+    }
+
     protected String getMessage() {
         return message;
     }
@@ -45,5 +56,13 @@ public abstract class AbstractHandler implements Runnable {
 
     protected FileTable getFileTable() {
         return fileTable;
+    }
+
+    protected String getClientIpAddress() {
+        return clientIpAddress;
+    }
+
+    protected int getClientPort() {
+        return clientPort;
     }
 }

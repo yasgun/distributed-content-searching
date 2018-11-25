@@ -1,5 +1,7 @@
 package team.anoml.node.handler.request;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import team.anoml.node.core.FileTableEntry;
 import team.anoml.node.core.RoutingTableEntry;
 import team.anoml.node.util.SystemSettings;
@@ -8,12 +10,10 @@ import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class SearchRequestHandler extends AbstractRequestHandler {
 
-    private static Logger logger = Logger.getLogger(SearchRequestHandler.class.getName());
+    private static Logger logger = LogManager.getLogger(SearchRequestHandler.class.getName());
 
     @Override
     protected void handleRequest() {
@@ -21,6 +21,7 @@ public class SearchRequestHandler extends AbstractRequestHandler {
 
         String ipAddress = parts[0];
         int port = Integer.parseInt(parts[1]);
+
         String fileName = parts[2];
         int hopsCount = Integer.parseInt(parts[3]);
 
@@ -28,31 +29,35 @@ public class SearchRequestHandler extends AbstractRequestHandler {
         StringBuilder fileNamesResponse = new StringBuilder();
 
         for (FileTableEntry fileTableEntry : getFileTable().getAllEntries()) {
-            fileNamesResponse.append(fileTableEntry.getFileName());
+            fileNamesResponse.append(fileTableEntry.getFileName()).append(" ");
         }
 
         if (!fileTableEntries.isEmpty()) {
             try (DatagramSocket datagramSocket = new DatagramSocket()) {
-                String response = String.format(SystemSettings.SEROK_MSG_FORMAT, fileTableEntries.size(), SystemSettings
-                        .getNodeIP(), SystemSettings.getTCPPort(), hopsCount + 1, fileNamesResponse);
+                String response = String.format(SystemSettings.SEROK_MSG_FORMAT, fileTableEntries.size(),
+                        SystemSettings.getNodeIP(), SystemSettings.getTCPPort(), hopsCount + 1,
+                        fileNamesResponse.toString().trim());
+
                 sendMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
-                logger.log(Level.INFO, "Sent file names " + fileNamesResponse + " to: ip " + ipAddress + " port: " +
-                        port);
+                logger.info("Sent file names " + fileNamesResponse + " to: ip " + ipAddress + " port: " + port);
             } catch (IOException e) {
-                logger.log(Level.WARNING, "Handling SER request failed", e);
+                logger.error("Handling SER request failed", e);
             }
+
         } else {
+
             try (DatagramSocket datagramSocket = new DatagramSocket()) {
                 String request = String.format(SystemSettings.SER_MSG_FORMAT, ipAddress, port, fileName, hopsCount + 1);
 
                 for (RoutingTableEntry routingTableEntry : getRoutingTable().getAllEntries()) {
                     sendMessage(datagramSocket, request, new InetSocketAddress(routingTableEntry.getIP(),
                             routingTableEntry.getPort()).getAddress(), routingTableEntry.getPort());
-                    logger.log(Level.INFO, "Sent SER requests to neighbor: ip " + routingTableEntry.getIP() +
-                            " port: " + routingTableEntry.getPort());
+                    logger.info("Sent SER requests to neighbor: ip " + routingTableEntry.getIP() + " port: " +
+                            routingTableEntry.getPort());
                 }
+
             } catch (IOException e) {
-                logger.log(Level.WARNING, "Handling SER request failed", e);
+                logger.error("Handling SER request failed", e);
             }
         }
     }

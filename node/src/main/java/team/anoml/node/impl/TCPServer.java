@@ -1,18 +1,18 @@
 package team.anoml.node.impl;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import team.anoml.node.api.NodeServer;
 import team.anoml.node.core.FileTable;
 import team.anoml.node.util.SystemSettings;
 
 import java.io.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static spark.Spark.*;
 
 public class TCPServer implements NodeServer {
 
-    private static Logger logger = Logger.getLogger(TCPServer.class.getName());
+    private static Logger logger = LogManager.getLogger(TCPServer.class.getName());
 
     @Override
     public void startServer() {
@@ -44,17 +44,16 @@ public class TCPServer implements NodeServer {
 
     @Override
     public void stopServer() {
-        logger.log(Level.INFO, "Stopping TCP server...");
+        logger.info("Stopping TCP server...");
         stop();
-        logger.log(Level.INFO, "TCP server stopped!");
+        logger.info("TCP server stopped!");
     }
 
     @Override
     public void run() {
-        logger.log(Level.INFO, "Starting TCP server...");
+        logger.info("Starting TCP server...");
         port(SystemSettings.getTCPPort());
         startServer();
-        logger.log(Level.INFO, "TCP server started");
+        logger.info("TCP server started");
     }
-
 }
