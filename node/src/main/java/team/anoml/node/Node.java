@@ -1,9 +1,6 @@
 package team.anoml.node;
 
-import team.anoml.node.core.FileTable;
-import team.anoml.node.core.FileTableEntry;
-import team.anoml.node.core.RoutingTable;
-import team.anoml.node.core.RoutingTableEntry;
+import team.anoml.node.core.*;
 import team.anoml.node.exception.NodeException;
 import team.anoml.node.impl.TCPServer;
 import team.anoml.node.impl.UDPServer;
@@ -11,11 +8,10 @@ import team.anoml.node.util.NodeUtils;
 import team.anoml.node.util.SystemSettings;
 
 import java.io.*;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -119,6 +115,7 @@ public class Node {
 
                 String[] incomingResult = request.split(" ", 3);
                 String command = incomingResult[0];
+                String fileName = incomingResult[1];
 
                 switch (command) {
                     case SystemSettings.SHOW_FILES:
@@ -131,8 +128,14 @@ public class Node {
                         break;
                     case SystemSettings.SEARCH:
                         System.out.println("Executing Search Request...");
-                        //TODO: check whether file table contains matching files
-                        //TODO: if yes print them else send SER requests to neighbours
+                        //TODO: check whether file table contains matching files using regex
+                        FileTableEntry entry =fileTable.getEntryByFileName(fileName);
+                        if (entry == null){
+                            sendSearchReq(fileName);
+                        }else{
+                            System.out.println("File found :" + entry.getFileName());
+                            // TODO: What do we do next?
+                        }
                         //TODO: print SEROK results - need to decide how to print (wait here or not)
                         break;
                     case SystemSettings.DOWNLOAD:
@@ -237,6 +240,25 @@ public class Node {
             String fileName = fileNames[list.get(i)];
             File file = NodeUtils.createFile(fileName);
             fileTable.addEntry(new FileTableEntry(fileName, NodeUtils.getMD5Hex(file)));
+        }
+    }
+
+    private static void sendSearchReq(String fileName){
+        Collection<RoutingTableEntry> routingTableEntries = RoutingTable.getRoutingTable().getAllEntries();
+
+        for (RoutingTableEntry entry : routingTableEntries) {
+            String ipAddress = entry.getIP();
+            int port = entry.getPort();
+
+            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+                // TODO: Add the number of hops as a system setting
+                String response = String.format(SystemSettings.SER_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort(), fileName, 10);
+                NodeUtils.sendRequest(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
+                ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.SEROK_MSG + ":" + ipAddress, new Date());
+                logger.log(Level.INFO, "Requested a search for "+ fileName +" from ip: " + ipAddress + " port: " + port);
+            } catch (IOException e) {
+                logger.log(Level.WARNING, "Sending SER request failed", e);
+            }
         }
     }
 }
