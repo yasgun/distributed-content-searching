@@ -291,6 +291,29 @@ public class Node {
     }
 
     private static void downloadFile(String fileName, String ipAddress, int port) {
-        //TODO: add downloading logic here
+        try {
+            URL url = new URL("http://" + ipAddress + ":" + port + "/download/" + fileName);
+            HttpURLConnection httpConnection = (HttpURLConnection) (url.openConnection());
+            long completeFileSize = httpConnection.getContentLength();
+
+            try (BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
+                 FileOutputStream fos = new FileOutputStream(SystemSettings.getFilePath() + "downloaded/" + fileName);
+                 BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);) {
+
+                byte[] data = new byte[1024];
+                long downloadedFileSize = 0;
+                int x;
+
+                while ((x = in.read(data, 0, 1024)) >= 0) {
+                    downloadedFileSize += x;
+                    final int currentProgress = (int) ((((double) downloadedFileSize) / ((double) completeFileSize)) * 100000d);
+                    System.out.println(currentProgress);
+                    bout.write(data, 0, x);
+                }
+            }
+
+        } catch (IOException e) {
+            logger.error("File download failed", e);
+        }
     }
 }
