@@ -9,22 +9,34 @@ import java.util.logging.Logger;
 public class JoinResponseHandler extends AbstractResponseHandler {
 
     private static Logger logger = Logger.getLogger(JoinResponseHandler.class.getName());
+    private String ipAddress;
+    private int port;
+
+    public void setMessage(String message, String clientIp, int clientPort) {
+        super.setMessage(message);
+        this.ipAddress = clientIp;
+        this.port = clientPort;
+    }
 
     @Override
     protected void handleResponse() {
         //TODO: fix this
         String[] parts = getMessage().split(" ");
 
-        String ipAddress = parts[0];
-        int port = Integer.parseInt(parts[1]);
+        int value = Integer.parseInt(parts[0]);
+
         boolean isTracked = ResponseTracker.getResponseTracker().consumeWaitingResponse(SystemSettings.NBROK_MSG + ":" + ipAddress);
 
         if (isTracked) {
             //TODO: need to check value of the response - ip and port not in the message (check document)
-            getRoutingTable().getEntryByIP(ipAddress).validate();
-            logger.log(Level.INFO, "Validated ip: " + ipAddress + " port: " + port + " in routing table");
+            if (value == 0){
+                getRoutingTable().getEntryByIP(ipAddress).validate();
+                logger.log(Level.INFO, "Validated ip: " + ipAddress + " port: " + port + " in routing table");
+            }else {
+                logger.log(Level.INFO, "Validation of ip: " + ipAddress + " port: " + port + " in routing table failed due to error: "+ value);
+            }
         } else {
-            logger.log(Level.WARNING, "Handling JOIN response failed as no table entry was found");
+            logger.log(Level.WARNING, "Handling JOIN response failed as no Response Tracker entry was found");
         }
     }
 }

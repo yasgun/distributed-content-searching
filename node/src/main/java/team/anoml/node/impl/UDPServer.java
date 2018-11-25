@@ -54,6 +54,9 @@ public class UDPServer implements NodeServer {
                 DatagramPacket incoming = new DatagramPacket(buffer, buffer.length);
                 datagramSocket.receive(incoming);
 
+                String clientIp = incoming.getAddress().getHostAddress();
+                int clientPort = incoming.getPort();
+
                 byte[] data = incoming.getData();
                 String request = new String(data, 0, incoming.getLength());
 
@@ -79,7 +82,6 @@ public class UDPServer implements NodeServer {
                     case SystemSettings.HB_MSG:
                         HeartbeatRequestHandler heartbeatRequestHandler = new HeartbeatRequestHandler();
                         heartbeatRequestHandler.setMessage(incomingResult[2]);
-                        heartbeatRequestHandler.setUdpServer(this);
                         executor.execute(new Thread(heartbeatRequestHandler));
                         break;
                     case SystemSettings.SER_MSG:
@@ -93,8 +95,8 @@ public class UDPServer implements NodeServer {
                         executor.execute(new Thread(errorResponseHandler));
                         break;
                     case SystemSettings.JOINOK_MSG:
-                        AbstractHandler joinResponseHandler = new JoinResponseHandler();
-                        joinResponseHandler.setMessage(incomingResult[2]);
+                        JoinResponseHandler joinResponseHandler = new JoinResponseHandler();
+                        joinResponseHandler.setMessage(incomingResult[2], clientIp, clientPort);
                         executor.execute(new Thread(joinResponseHandler));
                         break;
                     case SystemSettings.LEAVEOK_MSG:
