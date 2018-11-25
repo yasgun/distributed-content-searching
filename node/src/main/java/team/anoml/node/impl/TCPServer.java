@@ -1,115 +1,57 @@
 package team.anoml.node.impl;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 import team.anoml.node.api.NodeServer;
+import team.anoml.node.core.FileTable;
 import team.anoml.node.util.SystemSettings;
 
 import java.io.*;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static spark.Spark.*;
+
 public class TCPServer implements NodeServer {
 
-    private static Logger logger = Logger.getLogger(UDPServer.class.getName());
-
-    private ServerSocket serverSocket;
-
-    private boolean listening = false;
+    private static Logger logger = Logger.getLogger(TCPServer.class.getName());
 
     @Override
     public void startServer() {
-        if (listening) {
-            return;
-        }
+        get("/download/:name", (request, response) -> {
 
-        try {
-            listen();
-        } catch (Exception e) {
-            logger.log(Level.WARNING, "TCP listening failed");
-        }
-    }
+            try (OutputStream outputStream = response.raw().getOutputStream()) {
 
-    private void listen() {
-        listening = true;
+                File file = new File(SystemSettings.getFilePath() + "/" + request.params("name"));
+                byte[] bytes = new byte[(int) file.length()];
+                FileInputStream fileInputStream = new FileInputStream(file);
 
-//        serverSocket = new ServerSocket(SystemSettings.getTCPPort());
-//
-//        while (listening) {
-//            try {
-//                Socket connectionSocket = serverSocket.accept();
-//                BufferedReader in = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
-//                DataOutputStream out = new DataOutputStream(connectionSocket.getOutputStream());
-//
-//                String request = in.readLine();
-//
-//                String[] incomingResult = request.split(" ", 3);
-//                String command = incomingResult[1];
-//
-//                switch (command) {
-//                    case SystemSettings.DOWN_MSG:
-//                        OutputStream fileOutputStream = new FileOutputStream("filePath");
-//                }
-//            } catch (Exception e) {
-//                logger.log(Level.WARNING, "Error occurred while TCP listening", e);
-//            }
-//        }
+                response.header("Content-Disposition", "attachment; filename=" + request.params("name"));
+                response.header("Content-MD5", FileTable.getFileTable().getEntryByFileName(request.params("name")).getMd5());
 
-        HttpServer server;
-        try {
-            server = HttpServer.create(new InetSocketAddress(SystemSettings.getTCPPort()), 0);
-            server.createContext("/", new FileHandler());
-            server.setExecutor(null); // creates a default executor
-            server.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                int count;
+                while ((count = fileInputStream.read(bytes)) > 0) {
+                    outputStream.write(bytes, 0, count);
+                }
 
-
-    }
-
-    static class FileHandler implements HttpHandler {
-        @Override
-        public void handle(HttpExchange t) throws IOException {
-            InputStream inputStream = t.getRequestBody();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String request = bufferedReader.readLine();
-
-            String[] incomingResult = request.split(" ", 3);
-            String command = incomingResult[1];
-
-            switch (command) {
-                case SystemSettings.DOWN_MSG:
-                    File file = new File(SystemSettings.getFilePath() + "/" + incomingResult[2]);
-                    byte[] bytes = new byte[(int) file.length()];
-                    FileInputStream fileInputStream = new FileInputStream(file);
-
-                    t.sendResponseHeaders(200, file.length());
-                    OutputStream os = t.getResponseBody();
-
-                    int count;
-                    while ((count = fileInputStream.read(bytes)) > 0) {
-                        os.write(bytes, 0, count);
-                    }
-                    os.close();
-                    fileInputStream.close();
+            } catch (Exception e) {
+                halt(500, "Error occurred while generating respose");
             }
-        }
+
+            return response.raw();
+        });
     }
 
     @Override
     public void stopServer() {
-        if (listening) {
-            listening = false;
-        }
+        logger.log(Level.INFO, "Stopping TCP server...");
+        stop();
+        logger.log(Level.INFO, "TCP server stopped!");
     }
 
     @Override
     public void run() {
-
+        logger.log(Level.INFO, "Starting TCP server...");
+        startServer();
+        logger.log(Level.INFO, "TCP server started");
     }
+
 }
