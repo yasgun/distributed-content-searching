@@ -33,68 +33,70 @@ public class Node {
 
         logger.info("Connecting to Bootstrap Server at: " + bootstrapIP + " through port: " + bootstrapPort);
 
-        try (Socket clientSocket = new Socket();
-             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
+        try (Socket clientSocket = new Socket()) {
 
             clientSocket.connect(new InetSocketAddress(bootstrapIP, bootstrapPort), SystemSettings.getTCPTimeout());
 
-            String messageText = String.format(SystemSettings.REG_MSG_FORMAT, bootstrapIP, bootstrapPort, username);
+            try (PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
 
-            String lengthText = "0000" + (messageText.length() + 5);
-            lengthText = lengthText.substring(lengthText.length() - 4);
-            messageText = lengthText + " " + messageText;
+                String messageText = String.format(SystemSettings.REG_MSG_FORMAT, bootstrapIP, bootstrapPort, username);
 
-            out.println(messageText);
+                String lengthText = "0000" + (messageText.length() + 5);
+                lengthText = lengthText.substring(lengthText.length() - 4);
+                messageText = lengthText + " " + messageText;
 
-            char[] chars = new char[SystemSettings.getMaxMessageCharSize()];
-            int read;
-            read = in.read(chars);
+                out.println(messageText);
 
-            String response = String.valueOf(chars, 0, read);
+                char[] chars = new char[SystemSettings.getMaxMessageCharSize()];
+                int read;
+                read = in.read(chars);
 
-            logger.info("Response from BS: " + response);
+                String response = String.valueOf(chars, 0, read);
 
-            String[] parts = response.split(" ");
-            String noOfNodes = parts[2];
+                logger.info("Response from BS: " + response);
 
-            if (parts[1].equals(SystemSettings.ERROR_MSG)) {
+                String[] parts = response.split(" ");
+                String noOfNodes = parts[2];
 
-                throw new NodeException("Starting node failed", new Throwable("Error response: " + parts[2]));
+                if (parts[1].equals(SystemSettings.ERROR_MSG)) {
 
-            } else if (parts[1].equals(SystemSettings.REGOK_MSG)) {
+                    throw new NodeException("Starting node failed", new Throwable("Error response: " + parts[2]));
 
-                switch (Integer.valueOf(noOfNodes)) {
-                    case 0:
-                        //nothing to do until another node finds out
-                        break;
-                    case 1:
-                        routingTable.addEntry(new RoutingTableEntry(parts[3], Integer.valueOf(parts[4])));
-                        break;
-                    case 2:
-                        routingTable.addEntry(new RoutingTableEntry(parts[3], Integer.valueOf(parts[4])));
-                        routingTable.addEntry(new RoutingTableEntry(parts[5], Integer.valueOf(parts[6])));
-                        break;
-                    default:
-                        Random random = new Random();
-                        int randInt1 = random.nextInt(Integer.valueOf(noOfNodes));
-                        int randInt2 = random.nextInt(Integer.valueOf(noOfNodes));
+                } else if (parts[1].equals(SystemSettings.REGOK_MSG)) {
 
-                        while (randInt1 == randInt2) {
-                            randInt2 = random.nextInt(Integer.valueOf(noOfNodes));
-                        }
+                    switch (Integer.valueOf(noOfNodes)) {
+                        case 0:
+                            //nothing to do until another node finds out
+                            break;
+                        case 1:
+                            routingTable.addEntry(new RoutingTableEntry(parts[3], Integer.valueOf(parts[4])));
+                            break;
+                        case 2:
+                            routingTable.addEntry(new RoutingTableEntry(parts[3], Integer.valueOf(parts[4])));
+                            routingTable.addEntry(new RoutingTableEntry(parts[5], Integer.valueOf(parts[6])));
+                            break;
+                        default:
+                            Random random = new Random();
+                            int randInt1 = random.nextInt(Integer.valueOf(noOfNodes));
+                            int randInt2 = random.nextInt(Integer.valueOf(noOfNodes));
 
-                        routingTable.addEntry(new RoutingTableEntry(parts[(randInt1) * 2 + 3], Integer.valueOf(parts[(randInt1) * 2 + 3])));
-                        routingTable.addEntry(new RoutingTableEntry(parts[(randInt2) * 2 + 3], Integer.valueOf(parts[(randInt2) * 2 + 3])));
+                            while (randInt1 == randInt2) {
+                                randInt2 = random.nextInt(Integer.valueOf(noOfNodes));
+                            }
 
-                        break;
+                            routingTable.addEntry(new RoutingTableEntry(parts[(randInt1) * 2 + 3], Integer.valueOf(parts[(randInt1) * 2 + 3])));
+                            routingTable.addEntry(new RoutingTableEntry(parts[(randInt2) * 2 + 3], Integer.valueOf(parts[(randInt2) * 2 + 3])));
+
+                            break;
+                    }
+
+                } else {
+                    throw new NodeException("Starting node failed", new Throwable("Unknown message format"));
                 }
 
-            } else {
-                throw new NodeException("Starting node failed", new Throwable("Unknown message format"));
+                generateFiles();
             }
-
-            generateFiles();
 
         } catch (IOException e) {
             logger.error("Starting node failed", e);
