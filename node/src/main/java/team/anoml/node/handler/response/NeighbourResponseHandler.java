@@ -30,7 +30,7 @@ public class NeighbourResponseHandler extends AbstractResponseHandler {
                 getRoutingTable().addEntry(new RoutingTableEntry(ipAddress, port));
 
                 try (DatagramSocket datagramSocket = new DatagramSocket()) {
-                    String request = String.format(SystemSettings.JOIN_MSG_FORMAT, ipAddress, port);
+                    String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
                     sendMessage(datagramSocket, request, new InetSocketAddress(ipAddress, port).getAddress(), port);
                     logger.info("Sent JOIN request to ip: " + ipAddress + " port: " + port);
 

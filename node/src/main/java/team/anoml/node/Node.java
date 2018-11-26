@@ -85,7 +85,7 @@ public class Node {
                             getRoutingTable().addEntry(new RoutingTableEntry(ipAddress, port));
 
                             try (DatagramSocket datagramSocket = new DatagramSocket()) {
-                                String request = String.format(SystemSettings.JOIN_MSG_FORMAT, ipAddress, port);
+                                String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
                                 sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress, port).getAddress(), port);
                                 logger.info("Sent JOIN request to ip: " + ipAddress + " port: " + port);
 
@@ -103,7 +103,7 @@ public class Node {
                             getRoutingTable().addEntry(new RoutingTableEntry(ipAddress1, port1));
 
                             try (DatagramSocket datagramSocket = new DatagramSocket()) {
-                                String request = String.format(SystemSettings.JOIN_MSG_FORMAT, ipAddress1, port1);
+                                String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
                                 sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress1, port1).getAddress(), port1);
                                 logger.info("Sent JOIN request to ip: " + ipAddress1 + " port: " + port1);
 
@@ -114,7 +114,7 @@ public class Node {
                             getRoutingTable().addEntry(new RoutingTableEntry(ipAddress2, port2));
 
                             try (DatagramSocket datagramSocket = new DatagramSocket()) {
-                                String request = String.format(SystemSettings.JOIN_MSG_FORMAT, ipAddress2, port2);
+                                String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
                                 sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress2, port2).getAddress(), port2);
                                 logger.info("Sent JOIN request to ip: " + ipAddress2 + " port: " + port2);
 
@@ -142,7 +142,7 @@ public class Node {
                             getRoutingTable().addEntry(new RoutingTableEntry(ipAddress1, port1));
 
                             try (DatagramSocket datagramSocket = new DatagramSocket()) {
-                                String request = String.format(SystemSettings.JOIN_MSG_FORMAT, ipAddress1, port1);
+                                String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
                                 sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress1, port1).getAddress(), port1);
                                 logger.info("Sent JOIN request to ip: " + ipAddress1 + " port: " + port1);
 
@@ -153,7 +153,7 @@ public class Node {
                             getRoutingTable().addEntry(new RoutingTableEntry(ipAddress2, port2));
 
                             try (DatagramSocket datagramSocket = new DatagramSocket()) {
-                                String request = String.format(SystemSettings.JOIN_MSG_FORMAT, ipAddress2, port2);
+                                String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
                                 sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress2, port2).getAddress(), port2);
                                 logger.info("Sent JOIN request to ip: " + ipAddress2 + " port: " + port2);
 
