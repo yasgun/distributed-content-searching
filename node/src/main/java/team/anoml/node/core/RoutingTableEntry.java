@@ -19,8 +19,9 @@ public class RoutingTableEntry {
         return port;
     }
 
-    public void validate() {
+    public RoutingTableEntry validate() {
         this.validated = true;
+        return this;
     }
 
     public boolean isValidated() {
