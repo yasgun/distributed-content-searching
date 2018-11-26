@@ -157,6 +157,10 @@ public class SystemSettings {
         return Integer.valueOf(properties.getProperty("node.message.max_char_size", "8192"));
     }
 
+    public static int getTCPTimeout() {
+        return Integer.valueOf(properties.getProperty("node.tcp.timeout", "2000"));
+    }
+
     public static int getRequestTryCount() {
         return Integer.valueOf(properties.getProperty("request.try.count", "3"));
     }

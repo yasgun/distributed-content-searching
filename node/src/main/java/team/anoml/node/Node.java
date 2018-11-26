@@ -33,9 +33,11 @@ public class Node {
 
         logger.info("Connecting to Bootstrap Server at: " + bootstrapIP + " through port: " + bootstrapPort);
 
-        try (Socket clientSocket = new Socket(bootstrapIP, bootstrapPort);
+        try (Socket clientSocket = new Socket();
              PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
+
+            clientSocket.connect(new InetSocketAddress(bootstrapIP, bootstrapPort), SystemSettings.getTCPTimeout());
 
             String messageText = String.format(SystemSettings.REG_MSG_FORMAT, bootstrapIP, bootstrapPort, username);
 
