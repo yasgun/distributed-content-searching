@@ -13,6 +13,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import static team.anoml.node.core.RoutingTable.getRoutingTable;
+
 public class Node {
 
     private static Logger logger = LogManager.getLogger(Node.class.getName());
@@ -22,7 +24,7 @@ public class Node {
     private static UDPServer udpServer;
     private static TCPServer tcpServer;
 
-    private static RoutingTable routingTable = RoutingTable.getRoutingTable();
+    private static RoutingTable routingTable = getRoutingTable();
     private static FileTable fileTable = FileTable.getFileTable();
 
     private static String bootstrapIP = SystemSettings.getBootstrapIP();
@@ -57,7 +59,6 @@ public class Node {
                 logger.info("Response from BS: " + response);
 
                 String[] parts = response.split(" ");
-                String noOfNodes = parts[2];
 
                 if (parts[1].equals(SystemSettings.ERROR_MSG)) {
 
@@ -65,16 +66,62 @@ public class Node {
 
                 } else if (parts[1].equals(SystemSettings.REGOK_MSG)) {
 
+                    String noOfNodes = parts[2];
+
+                    String ipAddress1;
+                    int port1;
+
+                    String ipAddress2;
+                    int port2;
+
                     switch (Integer.valueOf(noOfNodes)) {
                         case 0:
                             //nothing to do until another node finds out
                             break;
                         case 1:
-                            routingTable.addEntry(new RoutingTableEntry(parts[3], Integer.valueOf(parts[4])));
+                            String ipAddress = parts[3];
+                            int port = Integer.valueOf(parts[4]);
+
+                            getRoutingTable().addEntry(new RoutingTableEntry(ipAddress, port));
+
+                            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+                                String request = String.format(SystemSettings.JOIN_MSG_FORMAT, ipAddress, port);
+                                sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress, port).getAddress(), port);
+                                logger.info("Sent JOIN request to ip: " + ipAddress + " port: " + port);
+
+                            } catch (IOException e) {
+                                logger.info("Sending JOIN request to " + ipAddress + ":" + port + " failed", e);
+                            }
                             break;
                         case 2:
-                            routingTable.addEntry(new RoutingTableEntry(parts[3], Integer.valueOf(parts[4])));
-                            routingTable.addEntry(new RoutingTableEntry(parts[5], Integer.valueOf(parts[6])));
+                            ipAddress1 = parts[3];
+                            port1 = Integer.valueOf(parts[4]);
+
+                            ipAddress2 = parts[5];
+                            port2 = Integer.valueOf(parts[6]);
+
+                            getRoutingTable().addEntry(new RoutingTableEntry(ipAddress1, port1));
+
+                            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+                                String request = String.format(SystemSettings.JOIN_MSG_FORMAT, ipAddress1, port1);
+                                sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress1, port1).getAddress(), port1);
+                                logger.info("Sent JOIN request to ip: " + ipAddress1 + " port: " + port1);
+
+                            } catch (IOException e) {
+                                logger.info("Sending JOIN request to " + ipAddress1 + ":" + port1 + " failed", e);
+                            }
+
+                            getRoutingTable().addEntry(new RoutingTableEntry(ipAddress2, port2));
+
+                            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+                                String request = String.format(SystemSettings.JOIN_MSG_FORMAT, ipAddress2, port2);
+                                sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress2, port2).getAddress(), port2);
+                                logger.info("Sent JOIN request to ip: " + ipAddress2 + " port: " + port2);
+
+                            } catch (IOException e) {
+                                logger.info("Sending JOIN request to " + ipAddress2 + ":" + port2 + " failed", e);
+                            }
+
                             break;
                         default:
                             Random random = new Random();
@@ -85,8 +132,34 @@ public class Node {
                                 randInt2 = random.nextInt(Integer.valueOf(noOfNodes));
                             }
 
-                            routingTable.addEntry(new RoutingTableEntry(parts[(randInt1) * 2 + 3], Integer.valueOf(parts[(randInt1) * 2 + 3])));
-                            routingTable.addEntry(new RoutingTableEntry(parts[(randInt2) * 2 + 3], Integer.valueOf(parts[(randInt2) * 2 + 3])));
+                            ipAddress1 = parts[(randInt1) * 2 + 3];
+                            port1 = Integer.valueOf(parts[(randInt1) * 2 + 3]);
+
+                            ipAddress2 = parts[(randInt2) * 2 + 3];
+                            port2 = Integer.valueOf(parts[(randInt2) * 2 + 3]);
+
+
+                            getRoutingTable().addEntry(new RoutingTableEntry(ipAddress1, port1));
+
+                            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+                                String request = String.format(SystemSettings.JOIN_MSG_FORMAT, ipAddress1, port1);
+                                sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress1, port1).getAddress(), port1);
+                                logger.info("Sent JOIN request to ip: " + ipAddress1 + " port: " + port1);
+
+                            } catch (IOException e) {
+                                logger.info("Sending JOIN request to " + ipAddress1 + ":" + port1 + " failed", e);
+                            }
+
+                            getRoutingTable().addEntry(new RoutingTableEntry(ipAddress2, port2));
+
+                            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+                                String request = String.format(SystemSettings.JOIN_MSG_FORMAT, ipAddress2, port2);
+                                sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress2, port2).getAddress(), port2);
+                                logger.info("Sent JOIN request to ip: " + ipAddress2 + " port: " + port2);
+
+                            } catch (IOException e) {
+                                logger.info("Sending JOIN request to " + ipAddress2 + ":" + port2 + " failed", e);
+                            }
 
                             break;
                     }
@@ -261,7 +334,7 @@ public class Node {
     }
 
     private static void sendSearchRequest(String fileName) {
-        Collection<RoutingTableEntry> routingTableEntries = RoutingTable.getRoutingTable().getAllEntries();
+        Collection<RoutingTableEntry> routingTableEntries = getRoutingTable().getAllEntries();
 
         for (RoutingTableEntry entry : routingTableEntries) {
             String ipAddress = entry.getIP();
