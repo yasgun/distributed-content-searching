@@ -35,8 +35,8 @@ public class HeartbeatTimerTask extends AbstractTimerTask {
                 try (DatagramSocket datagramSocket = new DatagramSocket()) {
 
                     String response = String.format(SystemSettings.HB_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
-                    sendRequest(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
                     ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.HBOK_MSG, ipAddress, port, new Date());
+                    sendRequest(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
                     logger.info("Requested HB from ip: " + ipAddress + " port: " + port);
 
                 } catch (IOException e) {

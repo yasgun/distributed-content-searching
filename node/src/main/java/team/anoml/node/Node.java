@@ -86,6 +86,7 @@ public class Node {
 
                             try (DatagramSocket datagramSocket = new DatagramSocket()) {
                                 String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
+                                ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.JOINOK_MSG, ipAddress, port, new Date());
                                 sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress, port).getAddress(), port);
                                 logger.info("Sent JOIN request to ip: " + ipAddress + " port: " + port);
 
@@ -104,6 +105,7 @@ public class Node {
 
                             try (DatagramSocket datagramSocket = new DatagramSocket()) {
                                 String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
+                                ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.JOINOK_MSG, ipAddress1, port1, new Date());
                                 sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress1, port1).getAddress(), port1);
                                 logger.info("Sent JOIN request to ip: " + ipAddress1 + " port: " + port1);
 
@@ -115,6 +117,7 @@ public class Node {
 
                             try (DatagramSocket datagramSocket = new DatagramSocket()) {
                                 String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
+                                ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.JOINOK_MSG, ipAddress2, port2, new Date());
                                 sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress2, port2).getAddress(), port2);
                                 logger.info("Sent JOIN request to ip: " + ipAddress2 + " port: " + port2);
 
@@ -143,6 +146,7 @@ public class Node {
 
                             try (DatagramSocket datagramSocket = new DatagramSocket()) {
                                 String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
+                                ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.JOINOK_MSG, ipAddress1, port1, new Date());
                                 sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress1, port1).getAddress(), port1);
                                 logger.info("Sent JOIN request to ip: " + ipAddress1 + " port: " + port1);
 
@@ -154,6 +158,7 @@ public class Node {
 
                             try (DatagramSocket datagramSocket = new DatagramSocket()) {
                                 String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
+                                ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.JOINOK_MSG, ipAddress2, port2, new Date());
                                 sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress2, port2).getAddress(), port2);
                                 logger.info("Sent JOIN request to ip: " + ipAddress2 + " port: " + port2);
 
@@ -266,8 +271,8 @@ public class Node {
             try (DatagramSocket datagramSocket = new DatagramSocket()) {
 
                 String response = String.format(SystemSettings.LEAVE_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
-                sendUDPMessage(datagramSocket, response, new InetSocketAddress(entry.getIP(), entry.getPort()).getAddress(), entry.getPort());
                 ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.LEAVEOK_MSG, entry.getIP(), entry.getPort(), new Date());
+                sendUDPMessage(datagramSocket, response, new InetSocketAddress(entry.getIP(), entry.getPort()).getAddress(), entry.getPort());
                 logger.info("sent LEAVE request to ip: " + entry.getIP() + " port: " + entry.getPort());
 
             } catch (IOException e) {
@@ -342,8 +347,8 @@ public class Node {
 
             try (DatagramSocket datagramSocket = new DatagramSocket()) {
                 String response = String.format(SystemSettings.SER_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort(), fileName, 0);
-                sendUDPMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
                 ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.SEROK_MSG, ipAddress, port, new Date());
+                sendUDPMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
                 logger.info("Requested a search for " + fileName + " from ip: " + ipAddress + " port: " + port);
             } catch (IOException e) {
                 logger.error("Sending SER request failed", e);
