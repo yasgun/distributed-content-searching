@@ -19,14 +19,17 @@ public class HeartbeatRequestHandler extends AbstractRequestHandler {
         String ipAddress = parts[0];
         int port = Integer.parseInt(parts[1]);
 
-        try (DatagramSocket datagramSocket = new DatagramSocket()) {
-            String response = String.format(SystemSettings.HBOK_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
+        if (getRoutingTable().getEntry(ipAddress, port) != null) {
 
-            sendMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
-            logger.info("Sent HB response to " + ipAddress + ":" + port);
+            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+                String response = String.format(SystemSettings.HBOK_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
 
-        } catch (IOException e) {
-            logger.error("Handling HB request failed", e);
+                sendMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
+                logger.info("Sent HB response to " + ipAddress + ":" + port);
+
+            } catch (IOException e) {
+                logger.error("Handling HB request failed", e);
+            }
         }
     }
 }
