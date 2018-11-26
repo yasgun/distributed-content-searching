@@ -19,7 +19,7 @@ public class JoinRequestHandler extends AbstractRequestHandler {
         String ipAddress = parts[0];
         int port = Integer.parseInt(parts[1]);
 
-        try (DatagramSocket datagramSocket = new DatagramSocket(SystemSettings.getUDPPort())) {
+        try (DatagramSocket datagramSocket = new DatagramSocket()) {
             if (getRoutingTable().getAllEntries().size() < SystemSettings.getRoutingTableLimit()) {
 
                 String response = String.format(SystemSettings.JOINOK_MSG_FORMAT, 0);

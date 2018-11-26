@@ -33,7 +33,7 @@ public class SearchRequestHandler extends AbstractRequestHandler {
         }
 
         if (!fileTableEntries.isEmpty()) {
-            try (DatagramSocket datagramSocket = new DatagramSocket(SystemSettings.getUDPPort())) {
+            try (DatagramSocket datagramSocket = new DatagramSocket()) {
                 String response = String.format(SystemSettings.SEROK_MSG_FORMAT, fileTableEntries.size(),
                         SystemSettings.getNodeIP(), SystemSettings.getTCPPort(), hopsCount + 1,
                         fileNamesResponse.toString().trim());
@@ -46,7 +46,7 @@ public class SearchRequestHandler extends AbstractRequestHandler {
 
         } else {
 
-            try (DatagramSocket datagramSocket = new DatagramSocket(SystemSettings.getUDPPort())) {
+            try (DatagramSocket datagramSocket = new DatagramSocket()) {
                 String request = String.format(SystemSettings.SER_MSG_FORMAT, ipAddress, port, fileName, hopsCount + 1);
 
                 for (RoutingTableEntry routingTableEntry : getRoutingTable().getAllEntries()) {

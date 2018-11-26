@@ -22,7 +22,7 @@ public class NeighbourRequestHandler extends AbstractRequestHandler {
         String ipAddress = parts[0];
         int port = Integer.parseInt(parts[1]);
 
-        try (DatagramSocket datagramSocket = new DatagramSocket(SystemSettings.getUDPPort())) {
+        try (DatagramSocket datagramSocket = new DatagramSocket()) {
             Collection<RoutingTableEntry> routingTableEntries = getRoutingTable().getAllEntries();
             StringBuilder neighborDetails = new StringBuilder();
 
