@@ -42,7 +42,7 @@ public class Node {
             try (PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
                  BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
 
-                String messageText = String.format(SystemSettings.REG_MSG_FORMAT, bootstrapIP, bootstrapPort, username);
+                String messageText = String.format(SystemSettings.REG_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort(), username);
 
                 String lengthText = "0000" + (messageText.length() + 5);
                 lengthText = lengthText.substring(lengthText.length() - 4);
