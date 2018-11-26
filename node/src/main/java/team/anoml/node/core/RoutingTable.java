@@ -17,11 +17,11 @@ public class RoutingTable {
     }
 
     public void addEntry(RoutingTableEntry routingTableEntry) {
-        entries.put(routingTableEntry.getIP() + ":" + routingTableEntry.getPort(), routingTableEntry);
+        entries.put(routingTableEntry.getIP() , routingTableEntry);
     }
 
     public void removeEntry(String ip, int port) {
-        entries.remove(ip + ":" + port);
+        entries.remove(ip );
     }
 
     public Collection<RoutingTableEntry> getAllEntries() {
@@ -29,6 +29,6 @@ public class RoutingTable {
     }
 
     public RoutingTableEntry getEntry(String ip, int port) {
-        return entries.get(ip + ":" + port);
+        return entries.get(ip );
     }
 }
