@@ -131,7 +131,7 @@ public class Node {
                         System.out.println("Executing Search Request...");
                         String fileName = incomingResult[1];
 
-                        Collection<FileTableEntry> entries = fileTable.getEntriesByFileNameRegex(fileName);
+                        Collection<FileTableEntry> entries = fileTable.getEntriesByFileName(fileName);
                         if (entries == null) {
                             sendSearchRequest(fileName);
                         } else {

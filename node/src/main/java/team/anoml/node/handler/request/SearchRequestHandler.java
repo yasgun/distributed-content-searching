@@ -25,7 +25,7 @@ public class SearchRequestHandler extends AbstractRequestHandler {
         String fileName = parts[2];
         int hopsCount = Integer.parseInt(parts[3]);
 
-        Collection<FileTableEntry> fileTableEntries = getFileTable().getEntriesByFileNameRegex(fileName);
+        Collection<FileTableEntry> fileTableEntries = getFileTable().getEntriesByFileName(fileName);
         StringBuilder fileNamesResponse = new StringBuilder();
 
         for (FileTableEntry fileTableEntry : getFileTable().getAllEntries()) {

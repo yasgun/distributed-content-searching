@@ -1,7 +1,6 @@
 package team.anoml.node.core;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,17 +34,16 @@ public class FileTable {
         return entries.get(fileName);
     }
 
-    public Collection<FileTableEntry> getEntriesByFileNameRegex(String fileNameRegex) {
+    public Collection<FileTableEntry> getEntriesByFileName(String keyWord) {
 
         Collection<FileTableEntry> fileTableEntries = new ArrayList<>();
-        Pattern pattern = Pattern.compile(fileNameRegex);
-
+        Set<String> keyWords = new HashSet<>(Arrays.asList(keyWord.toUpperCase().split(" ")));
         for (FileTableEntry entry : getAllEntries()) {
-            Matcher matcher = pattern.matcher(entry.getFileName());
-            if (matcher.find())
+            Set<String> fileNameWords = new HashSet<>(Arrays.asList(entry.getFileName().toUpperCase().split(" ")));
+            if (fileNameWords.containsAll(keyWords)) {
                 fileTableEntries.add(entry);
+            }
         }
-
         return fileTableEntries;
     }
 }
