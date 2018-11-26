@@ -84,7 +84,7 @@ public class Node {
 
                             getRoutingTable().addEntry(new RoutingTableEntry(ipAddress, port));
 
-                            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+                            try (DatagramSocket datagramSocket = new DatagramSocket(SystemSettings.getUDPPort())) {
                                 String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
                                 ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.JOINOK_MSG, ipAddress, port, new Date());
                                 sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress, port).getAddress(), port);
@@ -103,7 +103,7 @@ public class Node {
 
                             getRoutingTable().addEntry(new RoutingTableEntry(ipAddress1, port1));
 
-                            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+                            try (DatagramSocket datagramSocket = new DatagramSocket(SystemSettings.getUDPPort())) {
                                 String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
                                 ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.JOINOK_MSG, ipAddress1, port1, new Date());
                                 sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress1, port1).getAddress(), port1);
@@ -115,7 +115,7 @@ public class Node {
 
                             getRoutingTable().addEntry(new RoutingTableEntry(ipAddress2, port2));
 
-                            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+                            try (DatagramSocket datagramSocket = new DatagramSocket(SystemSettings.getUDPPort())) {
                                 String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
                                 ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.JOINOK_MSG, ipAddress2, port2, new Date());
                                 sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress2, port2).getAddress(), port2);
@@ -144,7 +144,7 @@ public class Node {
 
                             getRoutingTable().addEntry(new RoutingTableEntry(ipAddress1, port1));
 
-                            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+                            try (DatagramSocket datagramSocket = new DatagramSocket(SystemSettings.getUDPPort())) {
                                 String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
                                 ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.JOINOK_MSG, ipAddress1, port1, new Date());
                                 sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress1, port1).getAddress(), port1);
@@ -156,7 +156,7 @@ public class Node {
 
                             getRoutingTable().addEntry(new RoutingTableEntry(ipAddress2, port2));
 
-                            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+                            try (DatagramSocket datagramSocket = new DatagramSocket(SystemSettings.getUDPPort())) {
                                 String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
                                 ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.JOINOK_MSG, ipAddress2, port2, new Date());
                                 sendUDPMessage(datagramSocket, request, new InetSocketAddress(ipAddress2, port2).getAddress(), port2);
@@ -268,7 +268,7 @@ public class Node {
 
 
         for (RoutingTableEntry entry : routingTable.getAllEntries()) {
-            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+            try (DatagramSocket datagramSocket = new DatagramSocket(SystemSettings.getUDPPort())) {
 
                 String response = String.format(SystemSettings.LEAVE_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
                 ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.LEAVEOK_MSG, entry.getIP(), entry.getPort(), new Date());
@@ -345,7 +345,7 @@ public class Node {
             String ipAddress = entry.getIP();
             int port = entry.getPort();
 
-            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+            try (DatagramSocket datagramSocket = new DatagramSocket(SystemSettings.getUDPPort())) {
                 String response = String.format(SystemSettings.SER_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort(), fileName, 0);
                 ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.SEROK_MSG, ipAddress, port, new Date());
                 sendUDPMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);

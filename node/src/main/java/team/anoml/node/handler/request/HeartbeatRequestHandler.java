@@ -21,7 +21,7 @@ public class HeartbeatRequestHandler extends AbstractRequestHandler {
 
         if (getRoutingTable().getEntry(ipAddress, port) != null) {
 
-            try (DatagramSocket datagramSocket = new DatagramSocket()) {
+            try (DatagramSocket datagramSocket = new DatagramSocket(SystemSettings.getUDPPort())) {
                 String response = String.format(SystemSettings.HBOK_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
 
                 sendMessage(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
