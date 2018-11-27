@@ -16,6 +16,8 @@ public class JoinResponseHandler extends AbstractResponseHandler {
 
         int value = Integer.parseInt(parts[0]);
 
+        logger.info("Received JOINOK from " + getClientIpAddress() + ":" + getClientPort() + " with value " + value);
+
         if (ResponseTracker.getResponseTracker()
                 .consumeWaitingResponse(SystemSettings.JOINOK_MSG, getClientIpAddress(), getClientPort())) {
 
@@ -27,7 +29,7 @@ public class JoinResponseHandler extends AbstractResponseHandler {
                         " to routing table failed due to error: " + value);
             }
         } else {
-            logger.error("Handling JOIN response failed since no response tracker entry was found");
+            logger.error("Handling JOINOK response failed since no response tracker entry was found");
         }
     }
 }

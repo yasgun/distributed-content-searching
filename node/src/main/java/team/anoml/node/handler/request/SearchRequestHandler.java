@@ -24,7 +24,7 @@ public class SearchRequestHandler extends AbstractRequestHandler {
         sender.setFileName(fileName);
         sender.setHopsCount(hopsCount);
 
-        logger.debug("Executing SEROK response sender");
+        logger.debug("Executing SEROK response sender for " + ipAddress + ":" + port);
         sender.send();
     }
 }

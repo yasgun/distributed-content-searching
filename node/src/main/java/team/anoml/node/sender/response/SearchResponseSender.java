@@ -40,19 +40,30 @@ public class SearchResponseSender extends AbstractResponseSender {
             }
 
         } else {
+            if (hopsCount < SystemSettings.getUDPSearchMaxHopCount()) {
+                for (RoutingTableEntry entry : getRoutingTable().getAllEntries()) {
+                    SearchRequestSender sender = new SearchRequestSender();
 
-            for (RoutingTableEntry entry : getRoutingTable().getAllEntries()) {
-                SearchRequestSender sender = new SearchRequestSender();
+                    sender.setDestinationIpAddress(entry.getIPAddress());
+                    sender.setDestinationPort(entry.getPort());
+                    sender.setTargetIpAddress(getDestinationIpAddress());
+                    sender.setTargetPort(getDestinationPort());
+                    sender.setFileName(fileName);
+                    sender.setHopsCount(hopsCount + 1);
 
-                sender.setDestinationIpAddress(entry.getIPAddress());
-                sender.setDestinationPort(entry.getPort());
-                sender.setTargetIpAddress(getDestinationIpAddress());
-                sender.setTargetPort(getDestinationPort());
-                sender.setFileName(fileName);
-                sender.setHopsCount(hopsCount + 1);
+                    logger.debug("Executing request sender");
+                    sender.send();
+                }
+            } else {
+                try {
+                    String response = String.format(SystemSettings.SEROK_MSG_FORMAT, 0,
+                            nodeIpAddress, SystemSettings.getTCPPort(), hopsCount + 1, "");
 
-                logger.debug("Executing request sender");
-                sender.send();
+                    sendMessage(response, getDestinationIpAddress(), getDestinationPort());
+                    logger.info("Sent no files found SEROK response to " + getDestinationIpAddress() + ":" + getDestinationPort());
+                } catch (IOException e) {
+                    logger.error("Sending SEROK response to " + getDestinationIpAddress() + ":" + getDestinationPort() + "failed", e);
+                }
             }
         }
     }

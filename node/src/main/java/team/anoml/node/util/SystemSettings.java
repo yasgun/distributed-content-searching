@@ -189,6 +189,10 @@ public class SystemSettings {
         return Integer.valueOf(properties.getProperty("server.udp.heartbeat.delay", "30000"));
     }
 
+    public static int getUDPSearchMaxHopCount() {
+        return Integer.valueOf(properties.getProperty("server.udp.search.max_hop_count", "10"));
+    }
+
     public static int getTCPPort() {
         return Integer.valueOf(properties.getProperty("server.tcp.port", "9911"));
     }

@@ -18,7 +18,7 @@ public class LeaveRequestHandler extends AbstractRequestHandler {
         sender.setDestinationIpAddress(ipAddress);
         sender.setDestinationPort(port);
 
-        logger.debug("Executing LEAVEOK response sender");
+        logger.debug("Executing LEAVEOK response sender for " + ipAddress + ":" + port);
         sender.send();
     }
 }

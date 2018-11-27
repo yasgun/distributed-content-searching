@@ -18,7 +18,7 @@ public class NeighbourRequestHandler extends AbstractRequestHandler {
         sender.setDestinationIpAddress(ipAddress);
         sender.setDestinationPort(port);
 
-        logger.debug("Executing NBROK response sender");
+        logger.debug("Executing NBROK response sender for " + ipAddress + ":" + port);
         sender.send();
     }
 }

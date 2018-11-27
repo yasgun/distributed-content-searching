@@ -18,7 +18,7 @@ public class HeartbeatRequestHandler extends AbstractRequestHandler {
         sender.setDestinationIpAddress(ipAddress);
         sender.setDestinationPort(port);
 
-        logger.debug("Executing HBOK response sender");
+        logger.debug("Executing HBOK response sender for " + ipAddress + ":" + port);
         sender.send();
     }
 }

@@ -1,9 +1,14 @@
 package team.anoml.node.handler;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import team.anoml.node.core.RoutingTable;
 import team.anoml.node.util.SystemSettings;
 
 public abstract class AbstractHandler implements Runnable {
+
+    private static Logger logger = LogManager.getLogger(AbstractHandler.class.getName());
+
 
     protected static final String nodeIpAddress = SystemSettings.getNodeIP();
     protected static final int nodePort = SystemSettings.getUDPPort();
@@ -15,6 +20,7 @@ public abstract class AbstractHandler implements Runnable {
     private RoutingTable routingTable = RoutingTable.getRoutingTable();
 
     public void setMessage(String message) {
+        logger.debug("Message received: " + message);
         this.message = message;
     }
 

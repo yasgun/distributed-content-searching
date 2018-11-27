@@ -7,7 +7,7 @@ import team.anoml.node.util.SystemSettings;
 
 public class HeartbeatResponseHandler extends AbstractResponseHandler {
 
-    private static Logger logger = LogManager.getLogger(JoinResponseHandler.class.getName());
+    private static Logger logger = LogManager.getLogger(HeartbeatResponseHandler.class.getName());
 
     @Override
     protected void handleResponse() {

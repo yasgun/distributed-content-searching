@@ -38,6 +38,8 @@ public class Node {
 
         logger.info("Connecting to Bootstrap Server at: " + bootstrapIP + " through port: " + bootstrapPort);
 
+        sendUnregisterMessage();
+
         try (Socket clientSocket = new Socket()) {
 
             clientSocket.connect(new InetSocketAddress(bootstrapIP, bootstrapPort), SystemSettings.getTCPTimeout());
@@ -80,12 +82,12 @@ public class Node {
                             break;
                         case 2:
                             sendJoinRequest(parts[3], Integer.valueOf(parts[4]));
-                            sendJoinRequest(parts[5], Integer.valueOf(parts[6]));
+                            sendJoinRequest(parts[6], Integer.valueOf(parts[7]));
                             break;
                         default:
                             int[] numbers = NodeUtils.getDistinctOrderedTwoRandomNumbers(Integer.valueOf(noOfNodes));
                             for (int i : numbers) {
-                                sendJoinRequest(parts[i * 2 + 3], Integer.valueOf(parts[i * 2 + 3]));
+                                sendJoinRequest(parts[i * 3 + 3], Integer.valueOf(parts[i * 3 + 3]));
                             }
                             break;
                     }
