@@ -1,8 +1,8 @@
-package team.anoml.node.impl;
+package team.anoml.node.server;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import team.anoml.node.api.NodeServer;
+import team.anoml.node.server.api.NodeServer;
 import team.anoml.node.core.FileTable;
 import team.anoml.node.util.SystemSettings;
 

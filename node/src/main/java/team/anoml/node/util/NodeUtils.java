@@ -17,12 +17,12 @@ public class NodeUtils {
 
     public static void printRoutingTable(RoutingTable routingTable) {
         System.out.println("-----------------------------------------------------------------------------");
-        System.out.printf("%40s %20s %10s", "Ip", "Port", "Validated");
+        System.out.printf("%40s %20s", "Ip", "Port");
         System.out.println();
         System.out.println("-----------------------------------------------------------------------------");
         for (RoutingTableEntry entry : routingTable.getAllEntries()) {
-            System.out.format("%40s %20s %10s",
-                    entry.getIP(), entry.getPort(), entry.isValidated());
+            System.out.format("%40s %20s",
+                    entry.getIPAddress(), entry.getPort());
             System.out.println();
         }
         System.out.println("-----------------------------------------------------------------------------");
@@ -58,5 +58,26 @@ public class NodeUtils {
         Files.write(file, array, StandardOpenOption.CREATE);
 
         return file.toFile();
+    }
+
+    public synchronized static int[] getDistinctOrderedTwoRandomNumbers(int bound) {
+        int[] numbers = new int[2];
+        Random random = new Random();
+
+        int randInt1 = random.nextInt(bound);
+        int randInt2 = random.nextInt(bound);
+
+        while (randInt1 == randInt2) {
+            randInt2 = random.nextInt(bound);
+        }
+
+        if (randInt1 < randInt2) {
+            numbers[0] = randInt1;
+            numbers[1] = randInt2;
+        } else {
+            numbers[0] = randInt2;
+            numbers[1] = randInt1;
+        }
+        return numbers;
     }
 }

@@ -1,28 +1,20 @@
 package team.anoml.node.task;
 
-import team.anoml.node.util.SystemSettings;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import team.anoml.node.sender.AbstractSender;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.util.TimerTask;
 
 abstract class AbstractTimerTask extends TimerTask {
 
-    void sendRequest(DatagramSocket datagramSocket, String response, InetAddress address, int port) throws IOException {
-        String lengthText = "0000" + (response.length() + 5);
-        lengthText = lengthText.substring(lengthText.length() - 4);
-        response = lengthText + " " + response;
+    private static Logger logger = LogManager.getLogger(AbstractTimerTask.class.getName());
 
-        DatagramPacket datagramPacket = new DatagramPacket(response.getBytes(), response.length(), address, port);
+    void sendRequest(AbstractSender sender, String ipAddress, int port) {
+        sender.setDestinationIpAddress(ipAddress);
+        sender.setDestinationPort(port);
 
-        for (int i = 0; i < SystemSettings.getRequestTryCount(); i++) {
-            datagramSocket.send(datagramPacket);
-            try {
-                Thread.sleep(SystemSettings.getRequestTryDelay());
-            } catch (InterruptedException ignored) {
-            }
-        }
+        logger.debug("Executing request sender");
+        sender.send();
     }
 }

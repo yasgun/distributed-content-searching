@@ -9,7 +9,7 @@ public class ErrorResponseHandler extends AbstractResponseHandler {
 
     @Override
     protected void handleResponse() {
-        logger.warn("Error response: " + getMessage() + " from node " + getClientIpAddress() + ":" + getClientPort());
+        logger.warn("Error response" + getMessage() + " from " + getClientIpAddress() + ":" + getClientPort());
     }
 
 }

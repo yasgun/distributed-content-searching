@@ -2,29 +2,20 @@ package team.anoml.node.core;
 
 public class RoutingTableEntry {
 
-    private String ip;
+    private String ipAddress;
     private int port;
-    private boolean validated = false;
 
-    public RoutingTableEntry(String ip, int port) {
-        this.ip = ip;
+    public RoutingTableEntry(String ipAddress, int port) {
+        this.ipAddress = ipAddress;
         this.port = port;
     }
 
-    public String getIP() {
-        return ip;
+    public String getIPAddress() {
+        return ipAddress;
     }
 
     public int getPort() {
         return port;
     }
 
-    public RoutingTableEntry validate() {
-        this.validated = true;
-        return this;
-    }
-
-    public boolean isValidated() {
-        return validated;
-    }
 }

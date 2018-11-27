@@ -17,7 +17,7 @@ public class SearchResponseHandler extends AbstractResponseHandler {
         int port = Integer.parseInt(parts[2]);
         int hopsCount = Integer.parseInt(parts[3]);
 
-        logger.info("Received SEROK response from ip: " + ipAddress + " port: " + port + " hops count: " + hopsCount);
+        logger.info("Received SEROK response from " + ipAddress + ":" + port + " hops count" + hopsCount);
 
         for (int i = 4; i < filesCount * 2; i++) {
             String fileName = parts[i];

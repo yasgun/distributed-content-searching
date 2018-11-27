@@ -5,13 +5,10 @@ import org.apache.logging.log4j.Logger;
 import team.anoml.node.core.ResponseTracker;
 import team.anoml.node.core.RoutingTable;
 import team.anoml.node.core.RoutingTableEntry;
+import team.anoml.node.sender.request.HeartbeatRequestSender;
 import team.anoml.node.util.SystemSettings;
 
-import java.io.IOException;
-import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
 import java.util.Collection;
-import java.util.Date;
 
 public class HeartbeatTimerTask extends AbstractTimerTask {
 
@@ -22,26 +19,16 @@ public class HeartbeatTimerTask extends AbstractTimerTask {
         Collection<RoutingTableEntry> routingTableEntries = RoutingTable.getRoutingTable().getAllEntries();
 
         for (RoutingTableEntry entry : routingTableEntries) {
-            String ipAddress = entry.getIP();
+            String ipAddress = entry.getIPAddress();
             int port = entry.getPort();
 
             if (ResponseTracker.getResponseTracker().consumeWaitingResponse(SystemSettings.HBOK_MSG, ipAddress, port)) {
 
                 RoutingTable.getRoutingTable().removeEntry(ipAddress, port);
-                logger.info("Ip: " + ipAddress + " port: " + port + " was removed from RoutingTable since no response to HB");
+                logger.info(ipAddress + ":" + port + " was removed from routing table since no response to HB");
 
             } else {
-
-                try (DatagramSocket datagramSocket = new DatagramSocket()) {
-
-                    String response = String.format(SystemSettings.HB_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
-                    ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.HBOK_MSG, ipAddress, new Date());
-                    sendRequest(datagramSocket, response, new InetSocketAddress(ipAddress, port).getAddress(), port);
-                    logger.info("Requested HB from ip: " + ipAddress + " port: " + port);
-
-                } catch (IOException e) {
-                    logger.error("Sending HB request failed", e);
-                }
+                sendRequest(new HeartbeatRequestSender(), ipAddress, port);
             }
 
         }

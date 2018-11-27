@@ -17,11 +17,11 @@ public class ResponseTracker {
         return responseTracker;
     }
 
-    public void addWaitingResponse(String requestType, String ip, Date requestTime) {
-        waitingResponses.put(requestType + ":" + ip, requestTime);
+    public void addWaitingResponse(String requestType, String ip, int port, Date requestTime) {
+        waitingResponses.put(requestType + ":" + ip + ":" + port, requestTime);
     }
 
     public boolean consumeWaitingResponse(String requestType, String ip, int port) {
-        return waitingResponses.remove(requestType + ":" + ip) != null;
+        return waitingResponses.remove(requestType + ":" + ip + ":" + port) != null;
     }
 }

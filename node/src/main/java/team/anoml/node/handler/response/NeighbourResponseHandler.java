@@ -3,11 +3,8 @@ package team.anoml.node.handler.response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import team.anoml.node.core.RoutingTableEntry;
+import team.anoml.node.sender.request.JoinRequestSender;
 import team.anoml.node.util.SystemSettings;
-
-import java.io.IOException;
-import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
 
 public class NeighbourResponseHandler extends AbstractResponseHandler {
 
@@ -24,22 +21,16 @@ public class NeighbourResponseHandler extends AbstractResponseHandler {
             String ipAddress = parts[i];
             int port = Integer.parseInt(parts[i + 1]);
 
-            if (getRoutingTable().getAllEntries().size() < SystemSettings.getRoutingTableLimit()
-                    && !(ipAddress.equals(SystemSettings.getNodeIP()) && port == SystemSettings.getUDPPort())) {
+            if (getRoutingTable().getCount() < SystemSettings.getRoutingTableLimit() && !(ipAddress.equals(nodeIpAddress) && port == nodePort)) {
 
                 getRoutingTable().addEntry(new RoutingTableEntry(ipAddress, port));
 
-                try (DatagramSocket datagramSocket = new DatagramSocket()) {
-                    String request = String.format(SystemSettings.JOIN_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
-                    sendMessage(datagramSocket, request, new InetSocketAddress(ipAddress, port).getAddress(), port);
-                    logger.info("Sent JOIN request to ip: " + ipAddress + " port: " + port);
+                JoinRequestSender sender = new JoinRequestSender();
+                sender.setDestinationIpAddress(ipAddress);
+                sender.setDestinationPort(port);
 
-                } catch (IOException e) {
-                    logger.info("Sending JOIN request to " + ipAddress + ":" + port + " failed", e);
-                }
-
-            } else {
-                break;
+                logger.debug("Executing JOIN request sender");
+                sender.send();
             }
         }
     }

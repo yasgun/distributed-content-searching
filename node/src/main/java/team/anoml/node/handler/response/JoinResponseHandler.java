@@ -3,6 +3,7 @@ package team.anoml.node.handler.response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import team.anoml.node.core.ResponseTracker;
+import team.anoml.node.core.RoutingTableEntry;
 import team.anoml.node.util.SystemSettings;
 
 public class JoinResponseHandler extends AbstractResponseHandler {
@@ -19,11 +20,11 @@ public class JoinResponseHandler extends AbstractResponseHandler {
                 .consumeWaitingResponse(SystemSettings.JOINOK_MSG, getClientIpAddress(), getClientPort())) {
 
             if (value == 0) {
-                getRoutingTable().getEntry(getClientIpAddress(), getClientPort()).validate();
-                logger.info("Validated ip: " + getClientIpAddress() + " port: " + getClientPort() + " in routing table");
+                getRoutingTable().addEntry(new RoutingTableEntry(getClientIpAddress(), getClientPort()));
+                logger.info("Added " + getClientIpAddress() + ":" + getClientPort() + " to routing table");
             } else {
-                logger.info("Validation of ip: " + getClientIpAddress() + " port: " + getClientPort() +
-                        " in routing table failed due to error: " + value);
+                logger.info("Adding " + getClientIpAddress() + ":" + getClientPort() +
+                        " to routing table failed due to error: " + value);
             }
         } else {
             logger.error("Handling JOIN response failed since no response tracker entry was found");

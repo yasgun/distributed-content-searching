@@ -2,8 +2,6 @@ package team.anoml.node.core;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class FileTable {
 
@@ -35,9 +33,9 @@ public class FileTable {
     }
 
     public Collection<FileTableEntry> getEntriesByFileName(String keyWord) {
-
         Collection<FileTableEntry> fileTableEntries = new ArrayList<>();
         Set<String> keyWords = new HashSet<>(Arrays.asList(keyWord.toUpperCase().split(" ")));
+
         for (FileTableEntry entry : getAllEntries()) {
             Set<String> fileNameWords = new HashSet<>(Arrays.asList(entry.getFileName().toUpperCase().split(" ")));
             if (fileNameWords.containsAll(keyWords)) {
