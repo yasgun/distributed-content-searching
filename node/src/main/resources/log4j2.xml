@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="warn" name="MyApp" packages="">
     <Appenders>
-        <File name="MyFile" fileName="./logs/app.log">
+        <File name="AnoML" fileName="./logs/app.log">
             <PatternLayout>
                 <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
             </PatternLayout>
@@ -9,10 +9,10 @@
     </Appenders>
     <Loggers>
         <Logger name="spark" level="TRACE">
-            <AppenderRef ref="MyFile"/>
+            <AppenderRef ref="AnoML"/>
         </Logger>
         <Root level="TRACE">
-            <AppenderRef ref="MyFile"/>
+            <AppenderRef ref="AnoML"/>
         </Root>
     </Loggers>
 </Configuration>
