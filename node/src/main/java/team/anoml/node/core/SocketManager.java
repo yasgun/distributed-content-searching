@@ -2,7 +2,6 @@ package team.anoml.node.core;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import team.anoml.node.handler.request.JoinRequestHandler;
 import team.anoml.node.util.SystemSettings;
 
 import java.net.DatagramSocket;

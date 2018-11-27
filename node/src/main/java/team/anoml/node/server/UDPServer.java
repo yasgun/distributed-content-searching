@@ -2,6 +2,7 @@ package team.anoml.node.server;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import team.anoml.node.core.SocketManager;
 import team.anoml.node.server.api.NodeServer;
 import team.anoml.node.handler.AbstractHandler;
 import team.anoml.node.handler.request.*;
@@ -24,7 +25,6 @@ public class UDPServer implements NodeServer {
     private Executor executor = Executors.newSingleThreadExecutor();
 
     private boolean listening = false;
-    private final int port = SystemSettings.getUDPPort();
 
     @Override
     public void startServer() {
@@ -39,12 +39,12 @@ public class UDPServer implements NodeServer {
         }
     }
 
-    private void listen() throws SocketException {
+    private void listen() {
         listening = true;
         startGossiping();
         startHeartbeat();
 
-        DatagramSocket datagramSocket = new DatagramSocket(port);
+        DatagramSocket datagramSocket = SocketManager.getDatagramSocket();
 
         while (listening) {
             try {
