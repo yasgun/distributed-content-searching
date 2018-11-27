@@ -131,6 +131,7 @@ public class Node {
                         String fileName = incomingResult[1];
 
                         Collection<FileTableEntry> entries = fileTable.getEntriesByFileName(fileName);
+                        System.out.println(entries.isEmpty());
                         if (entries.isEmpty()) {
                             sendSearchRequest(fileName);
                         } else {
@@ -267,7 +268,7 @@ public class Node {
             sender.setDestinationIpAddress(ipAddress);
             sender.setDestinationPort(port);
             sender.setTargetIpAddress(SystemSettings.getNodeIP());
-            sender.setTargetPort(SystemSettings.getTCPPort());
+            sender.setTargetPort(SystemSettings.getUDPPort());
             sender.setFileName(fileName);
             sender.setHopsCount(0);
 

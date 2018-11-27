@@ -25,7 +25,7 @@ public class SearchRequestSender extends AbstractRequestSender {
                 ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.SEROK_MSG, targetIpAddress, targetPort, new Date());
             }
             sendMessage(response, getDestinationIpAddress(), getDestinationPort());
-            logger.info("Requested a search for " + fileName + " from " + getDestinationIpAddress() + ":" + getDestinationPort());
+            logger.info("Sending SER for " + fileName + " from " + getDestinationIpAddress() + ":" + getDestinationPort());
         } catch (IOException e) {
             logger.error("Sending SER request to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
         }
