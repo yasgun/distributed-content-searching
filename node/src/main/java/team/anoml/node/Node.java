@@ -131,7 +131,7 @@ public class Node {
                         String fileName = incomingResult[1];
 
                         Collection<FileTableEntry> entries = fileTable.getEntriesByFileName(fileName);
-                        if (entries == null) {
+                        if (entries.isEmpty()) {
                             sendSearchRequest(fileName);
                         } else {
                             System.out.println("Files found in this node:");
