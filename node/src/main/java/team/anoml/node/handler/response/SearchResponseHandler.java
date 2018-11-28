@@ -24,7 +24,7 @@ public class SearchResponseHandler extends AbstractResponseHandler {
         if (ResponseTracker.getResponseTracker().consumeWaitingResponse(SystemSettings.SEROK_MSG, nodeIpAddress, nodePort)) {
             for (int i = 4; i < filesCount + 4; i++) {
                 String fileName = parts[i];
-                System.out.println("File name: " + fileName + " at " + ipAddress + ":" + port);
+                System.out.println("File name: " + fileName.replace("_", " ") + " at " + ipAddress + ":" + port);
             }
         }
     }
