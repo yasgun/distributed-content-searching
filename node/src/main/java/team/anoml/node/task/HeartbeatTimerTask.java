@@ -22,7 +22,7 @@ public class HeartbeatTimerTask extends AbstractTimerTask {
             String ipAddress = entry.getIPAddress();
             int port = entry.getPort();
 
-            if (!ResponseTracker.getResponseTracker().consumeWaitingResponse(SystemSettings.HBOK_MSG, ipAddress, port)) {
+            if (ResponseTracker.getResponseTracker().consumeWaitingResponse(SystemSettings.HBOK_MSG, ipAddress, port)) {
 
                 RoutingTable.getRoutingTable().removeEntry(ipAddress, port);
                 logger.info(ipAddress + ":" + port + " was removed from routing table since no response to HB");
