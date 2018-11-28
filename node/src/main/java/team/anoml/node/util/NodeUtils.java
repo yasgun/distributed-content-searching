@@ -30,19 +30,19 @@ public class NodeUtils {
 
     public static void printFileTable(FileTable fileTable) {
         System.out.println("-----------------------------------------------------------------------------");
-        System.out.printf("%30s %40s", "File Name", "md5");
+        System.out.printf("%30s %40s", "File Name", "SHA");
         System.out.println();
         System.out.println("-----------------------------------------------------------------------------");
         for (FileTableEntry entry : fileTable.getAllEntries()) {
             System.out.format("%30s %40s",
-                    entry.getFileName(), entry.getMd5());
+                    entry.getFileName(), entry.getSHA());
             System.out.println();
         }
         System.out.println("-----------------------------------------------------------------------------");
     }
 
-    public static String getMD5Hex(File file) throws IOException {
-        return DigestUtils.md5Hex(new FileInputStream(file)).toUpperCase();
+    public static String getSHAHex(File file) throws IOException {
+        return DigestUtils.sha1Hex(new FileInputStream(file)).toUpperCase();
     }
 
     public synchronized static File createFile(String fileName) throws IOException {

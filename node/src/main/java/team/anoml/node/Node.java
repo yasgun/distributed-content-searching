@@ -14,6 +14,8 @@ import team.anoml.node.util.SystemSettings;
 
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static team.anoml.node.core.RoutingTable.getRoutingTable;
@@ -112,6 +114,13 @@ public class Node {
 
         startServers();
 
+        //TODO change
+        try {
+            Files.createDirectories(Paths.get(SystemSettings.getFilePath() + "downloaded/"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         while (running) {
             try {
                 Scanner keyboard = new Scanner(System.in);
@@ -146,7 +155,7 @@ public class Node {
                     case SystemSettings.DOWNLOAD:
                         String[] incomingResultForDownload = incomingResult[1].split(" ", 3);
                         System.out.println("Executing Download Request...");
-                        downloadFile(incomingResultForDownload[1], Integer.valueOf(incomingResultForDownload[2]), incomingResultForDownload[3]);
+                        downloadFile(incomingResultForDownload[0], Integer.valueOf(incomingResultForDownload[1]), incomingResultForDownload[2]);
                         break;
                     case SystemSettings.EXIT:
                         System.out.println("Terminating Node...");
@@ -155,6 +164,7 @@ public class Node {
                 }
 
             } catch (Exception e) {
+                e.printStackTrace();
                 System.out.println("Invalid Request! Please Try Again");
             }
         }
@@ -228,7 +238,7 @@ public class Node {
         for (int i = 0; i < noOfFiles; i++) {
             String fileName = fileNames[list.get(i)];
             File file = NodeUtils.createFile(fileName);
-            fileTable.addEntry(new FileTableEntry(fileName, NodeUtils.getMD5Hex(file)));
+            fileTable.addEntry(new FileTableEntry(fileName, NodeUtils.getSHAHex(file)));
         }
     }
 
@@ -290,13 +300,16 @@ public class Node {
     }
 
     private static void downloadFile(String ipAddress, int port, String fileName) {
+        System.out.println(ipAddress + ":" + port + " " + fileName);
         try {
-            URL url = new URL("http://" + ipAddress + ":" + port + "/download/" + fileName);
+            URL url = new URL("http://" + ipAddress + ":" + port + "/download/" + fileName.replaceAll(" ", "%20"));
+            System.out.println(url);
             HttpURLConnection httpConnection = (HttpURLConnection) (url.openConnection());
             long completeFileSize = httpConnection.getContentLength();
+            String sha = httpConnection.getHeaderField("Content-SHA");
 
             try (BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
-                 FileOutputStream fos = new FileOutputStream(SystemSettings.getFilePath() + "downloaded/" + fileName);
+                 FileOutputStream fos = new FileOutputStream((SystemSettings.getFilePath() + "/downloaded/" + fileName).replaceAll(" ", "\\ "));
                  BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);) {
 
                 byte[] data = new byte[1024];
@@ -309,6 +322,15 @@ public class Node {
                     System.out.println(currentProgress);
                     bout.write(data, 0, x);
                 }
+            }
+
+            File file = new File((SystemSettings.getFilePath() + "/downloaded/" + fileName).replaceAll(" ", "\\ "));
+
+            System.out.println("Actual SHA: " + NodeUtils.getSHAHex(file));
+            System.out.println("Expected SHA:" + sha);
+
+            if (NodeUtils.getSHAHex(file).equals(sha)){
+                System.out.println("SHA MATCHES");
             }
 
         } catch (IOException e) {

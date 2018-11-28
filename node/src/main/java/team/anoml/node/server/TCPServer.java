@@ -25,7 +25,7 @@ public class TCPServer implements NodeServer {
                 FileInputStream fileInputStream = new FileInputStream(file);
 
                 response.header("Content-Disposition", "attachment; filename=" + request.params("name"));
-                response.header("Content-MD5", FileTable.getFileTable().getEntryByFileName(request.params("name")).getMd5());
+                response.header("Content-SHA", FileTable.getFileTable().getEntryByFileName(request.params("name")).getSHA());
 
                 int count;
                 while ((count = fileInputStream.read(bytes)) > 0) {
