@@ -118,7 +118,7 @@ public class Node {
                 System.out.println("Enter Command: ");
                 String request = keyboard.nextLine();
 
-                String[] incomingResult = request.split(" ", 3);
+                String[] incomingResult = request.split(" ", 2);
                 String command = incomingResult[0];
 
                 switch (command) {
@@ -144,8 +144,9 @@ public class Node {
                         }
                         break;
                     case SystemSettings.DOWNLOAD:
+                        String[] incomingResultForDownload = incomingResult[1].split(" ", 3);
                         System.out.println("Executing Download Request...");
-                        downloadFile(incomingResult[1], incomingResult[2], Integer.valueOf(incomingResult[3]));
+                        downloadFile(incomingResultForDownload[1], Integer.valueOf(incomingResultForDownload[2]), incomingResultForDownload[3]);
                         break;
                     case SystemSettings.EXIT:
                         System.out.println("Terminating Node...");
@@ -288,7 +289,7 @@ public class Node {
         sender.send();
     }
 
-    private static void downloadFile(String fileName, String ipAddress, int port) {
+    private static void downloadFile(String ipAddress, int port, String fileName) {
         try {
             URL url = new URL("http://" + ipAddress + ":" + port + "/download/" + fileName);
             HttpURLConnection httpConnection = (HttpURLConnection) (url.openConnection());
