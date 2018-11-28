@@ -33,7 +33,7 @@ public class TCPServer implements NodeServer {
                 }
 
             } catch (Exception e) {
-                halt(500, "Error occurred while generating respose");
+                halt(500, "Error occurred while generating response");
             }
 
             return response.raw();

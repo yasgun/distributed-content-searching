@@ -24,17 +24,28 @@ public class SearchResponseSender extends AbstractResponseSender {
         if (!fileTableEntries.isEmpty()) {
             StringBuilder fileNamesResponse = new StringBuilder();
 
-            for (FileTableEntry fileTableEntry : getFileTable().getAllEntries()) {
-                fileNamesResponse.append(fileTableEntry.getFileName()).append(" ");
+            for (FileTableEntry fileTableEntry : fileTableEntries) {
+                String[] fileNameWords = fileTableEntry.getFileName().split(" ");
+                StringBuilder fileNameEncode = new StringBuilder();
+                if (fileNameWords.length > 1) {
+                    for (String fileNameWord : fileNameWords) {
+                        fileNameEncode.append(fileNameWord).append("_");
+                    }
+                } else {
+                    fileNameEncode.append(fileNameWords[0]).append("_");
+                }
+                fileNamesResponse.append(fileNameEncode.toString()).append(" ");
             }
 
             try {
                 String response = String.format(SystemSettings.SEROK_MSG_FORMAT, fileTableEntries.size(),
                         nodeIpAddress, SystemSettings.getTCPPort(), hopsCount + 1,
-                        fileNamesResponse.toString().trim());
+                        fileNamesResponse.toString().trim().substring(0, fileNamesResponse.length() - 1));
 
                 sendMessage(response, getDestinationIpAddress(), getDestinationPort());
-                logger.info("Sent file names: " + fileNamesResponse + " to " + getDestinationIpAddress() + ":" + getDestinationPort());
+                logger.info("Sent file names to SER: " + fileNamesResponse + " to " + getDestinationIpAddress() +
+                        ":" +
+                        getDestinationPort());
             } catch (IOException e) {
                 logger.error("Handling SER request from " + getDestinationIpAddress() + ":" + getDestinationPort() + "failed", e);
             }
