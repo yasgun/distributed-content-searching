@@ -26,8 +26,8 @@ public class SearchResponseHandler extends AbstractResponseHandler {
 
         if (SearchResponseTracker.getSearchResponseTracker().addReceivedResponse(ipAddress, port, new Date())) {
             for (int i = 4; i < filesCount + 4; i++) {
-                String fileName = parts[i];
-                System.out.println("File name: " + fileName.replace("_", " ") + " at " + ipAddress + ":" + port);
+                String fileName = parts[i].replace("_"," ");
+                System.out.println("File name: " + fileName + " at " + ipAddress + ":" + port);
             }
         }
     }

@@ -40,7 +40,7 @@ public class SearchResponseSender extends AbstractResponseSender {
             try {
                 String response = String.format(SystemSettings.SEROK_MSG_FORMAT, fileTableEntries.size(),
                         nodeIpAddress, SystemSettings.getTCPPort(), hopsCount + 1,
-                        fileNamesResponse.toString().trim().substring(0, fileNamesResponse.length() - 1));
+                        fileNamesResponse.toString().trim().substring(0, fileNamesResponse.length() - 2));
 
                 sendMessage(response, getDestinationIpAddress(), getDestinationPort());
                 logger.info("Sent file names to SER: " + fileNamesResponse + " to " + getDestinationIpAddress() +
