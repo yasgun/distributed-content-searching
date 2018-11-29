@@ -12,7 +12,7 @@ public class SearchRequestSender extends AbstractRequestSender {
 
     private static Logger logger = LogManager.getLogger(SearchRequestSender.class.getName());
 
-    private static ConcurrentHashMap<String, Date> sentRequests = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, Integer> sentRequests = new ConcurrentHashMap<>();
 
     private String targetIpAddress;
     private int targetPort;
@@ -22,17 +22,17 @@ public class SearchRequestSender extends AbstractRequestSender {
 
     @Override
     protected void sendRequest() {
-        if (sentRequests.containsKey(id)) {
-            logger.info("SER message with id: " + id + " ignored since already sent");
-        } else {
-            sentRequests.put(id, new Date());
+        if (!sentRequests.containsKey(id) || (sentRequests.containsKey(id) && sentRequests.get(id) == hopsCount)) {
+            sentRequests.put(id, hopsCount);
             try {
                 String response = String.format(SystemSettings.SER_MSG_FORMAT, targetIpAddress, targetPort, fileName, hopsCount, id);
                 sendMessage(response, getDestinationIpAddress(), getDestinationPort());
-                logger.info("Sending SER for " + fileName + " from " + getDestinationIpAddress() + ":" + getDestinationPort());
+                logger.info("Sending SER for " + fileName + " to " + getDestinationIpAddress() + ":" + getDestinationPort());
             } catch (IOException e) {
                 logger.error("Sending SER request to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
             }
+        } else {
+            logger.info("SER message with id: " + id + " ignored since already sent");
         }
     }
 
