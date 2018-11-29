@@ -48,9 +48,9 @@ public class NeighbourResponseSender extends AbstractResponseSender {
             String response = String.format(SystemSettings.NBROK_MSG_FORMAT, neighborDetailsSize, neighborDetails.toString().trim());
             sendMessage(response, getDestinationIpAddress(), getDestinationPort());
 
-            logger.info("Sent neighbor details: " + neighborDetails + " to " + getDestinationIpAddress() + ":" + getDestinationPort());
+            logger.info("Sent message: [" + response + "] from " + getDestinationIpAddress() + ":" + getDestinationPort());
         } catch (IOException e) {
-            logger.error("Sending NBR response to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
+            logger.error("Sending response to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
         }
     }
 }

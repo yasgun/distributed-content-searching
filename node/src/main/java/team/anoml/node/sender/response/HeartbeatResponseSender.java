@@ -18,13 +18,11 @@ public class HeartbeatResponseSender extends AbstractResponseSender {
             try {
                 String response = String.format(SystemSettings.HBOK_MSG_FORMAT, nodeIpAddress, nodePort);
                 sendMessage(response, getDestinationIpAddress(), getDestinationPort());
-                logger.info("Sent HB response to " + getDestinationIpAddress() + ":" + getDestinationPort());
+                logger.info("Sent message: [" + response + "] from " + getDestinationIpAddress() + ":" + getDestinationPort());
 
             } catch (IOException e) {
-                logger.error("Sending HB response to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
+                logger.error("Sending response to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
             }
-        } else {
-            logger.warn("HB response to " + getDestinationIpAddress() + ":" + getDestinationPort() + " cannot be processed");
         }
     }
 }

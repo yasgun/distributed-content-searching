@@ -15,10 +15,10 @@ public class ErrorResponseSender extends AbstractResponseSender {
         try {
             String response = SystemSettings.ERROR_MSG_FORMAT;
             sendMessage(response, getDestinationIpAddress(), getDestinationPort());
-            logger.info("Sent ERROR response to " + getDestinationIpAddress() + ":" + getDestinationPort());
+            logger.info("Sent message: [" + response + "] from " + getDestinationIpAddress() + ":" + getDestinationPort());
 
         } catch (IOException e) {
-            logger.error("Sending ERROR response to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
+            logger.error("Sending response to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
         }
     }
 

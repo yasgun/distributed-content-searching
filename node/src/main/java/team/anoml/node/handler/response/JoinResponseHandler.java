@@ -17,10 +17,9 @@ public class JoinResponseHandler extends AbstractResponseHandler {
 
         int value = Integer.parseInt(parts[0]);
 
-        logger.info("Received JOINOK from " + getClientIpAddress() + ":" + getClientPort() + " with value " + value);
+        logger.info("Received message: [" + getMessage() + "] from " + getClientIpAddress() + ":" + getClientPort());
 
-        if (ResponseTracker.getResponseTracker()
-                .consumeWaitingResponse(SystemSettings.JOINOK_MSG, getClientIpAddress(), getClientPort())) {
+        if (ResponseTracker.getResponseTracker().consumeWaitingResponse(SystemSettings.JOINOK_MSG, getClientIpAddress(), getClientPort())) {
 
             if (value == 0) {
                 getRoutingTable().addEntry(new RoutingTableEntry(getClientIpAddress(), getClientPort()));
@@ -30,18 +29,12 @@ public class JoinResponseHandler extends AbstractResponseHandler {
                 NeighbourRequestSender sender = new NeighbourRequestSender();
                 sender.setDestinationIpAddress(getClientIpAddress());
                 sender.setDestinationPort(getClientPort());
-                logger.debug("Executing request sender");
                 sender.send();
-
-                logger.info("Adding " + getClientIpAddress() + ":" + getClientPort() +
-                        " to routing table failed: " + value + ". Sent NBR to get its neighbours");
 
             } else {
                 logger.info("Adding " + getClientIpAddress() + ":" + getClientPort() +
-                        " to routing table failed due to error: " + value);
+                        " to routing table failed: " + value);
             }
-        } else {
-            logger.error("Handling JOINOK response failed since no response tracker entry was found");
         }
     }
 }

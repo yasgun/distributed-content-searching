@@ -16,6 +16,8 @@ public class NeighbourResponseHandler extends AbstractResponseHandler {
 
         int neighborsCount = Integer.parseInt(parts[0]);
 
+        logger.info("Received message: [" + getMessage() + "] from " + getClientIpAddress() + ":" + getClientPort());
+
         for (int i = 1; i < neighborsCount * 2; i += 2) {
 
             String ipAddress = parts[i];
@@ -29,8 +31,6 @@ public class NeighbourResponseHandler extends AbstractResponseHandler {
                 JoinRequestSender sender = new JoinRequestSender();
                 sender.setDestinationIpAddress(ipAddress);
                 sender.setDestinationPort(port);
-
-                logger.debug("Executing JOIN request sender");
                 sender.send();
             }
         }

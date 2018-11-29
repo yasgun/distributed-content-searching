@@ -38,8 +38,6 @@ public class Node {
 
     public static void main(String[] args) {
 
-        logger.info("Connecting to Bootstrap Server at: " + bootstrapIP + " through port: " + bootstrapPort);
-
         sendUnregisterMessage();
 
         try (Socket clientSocket = new Socket()) {
@@ -62,8 +60,6 @@ public class Node {
                 read = in.read(chars);
 
                 String response = String.valueOf(chars, 0, read);
-
-                logger.info("Response from BS: " + response);
 
                 String[] parts = response.split(" ");
 
@@ -102,19 +98,13 @@ public class Node {
             }
 
         } catch (IOException e) {
-            logger.error("Starting node failed", e);
             throw new NodeException("Starting node failed", e);
-        }
-
-        for (RoutingTableEntry entry : routingTable.getAllEntries()) {
-            logger.info("Entry " + entry.getIPAddress() + ":" + entry.getPort());
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(Node::stopServers));
 
         startServers();
 
-        //TODO change
         try {
             Files.createDirectories(Paths.get(SystemSettings.getFilePath() + "downloaded/"));
         } catch (IOException e) {
@@ -166,8 +156,7 @@ public class Node {
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Invalid Request! Please Try Again");
+                logger.warn("Error occurred while executing command", e);
             }
         }
 
@@ -208,8 +197,6 @@ public class Node {
             LeaveRequestSender sender = new LeaveRequestSender();
             sender.setDestinationIpAddress(entry.getIPAddress());
             sender.setDestinationPort(entry.getPort());
-
-            logger.debug("Executing LEAVE request sender");
             sender.send();
         }
 
@@ -226,7 +213,6 @@ public class Node {
 
         Random random = new Random();
 
-        //Each node contributing 3-5 files
         int noOfFiles = random.nextInt(3) + 3;
 
         ArrayList<Integer> list = new ArrayList<>();
@@ -266,7 +252,7 @@ public class Node {
             response = String.valueOf(chars, 0, read);
 
         } catch (IOException e) {
-            logger.warn("Sending unregister message to bootstrap server failed", e);
+            logger.warn("Sending unregister message to BS failed", e);
         }
         return response;
     }
@@ -289,8 +275,6 @@ public class Node {
             sender.setFileName(fileName);
             sender.setHopsCount(0);
             sender.setId(id);
-
-            logger.debug("Executing request sender");
             sender.send();
         }
     }
@@ -299,8 +283,6 @@ public class Node {
         JoinRequestSender sender = new JoinRequestSender();
         sender.setDestinationIpAddress(ipAddress);
         sender.setDestinationPort(port);
-
-        logger.debug("Executing JOIN request sender");
         sender.send();
     }
 
@@ -335,11 +317,41 @@ public class Node {
             System.out.println("Expected SHA:" + sha);
 
             if (NodeUtils.getSHAHex(file).equals(sha)) {
-                System.out.println("SHA MATCHES");
+                System.out.println("SHA MATCHES - VALID FILE");
+            } else {
+                System.out.println("SHA DOES NOT MATCH - INVALID FILE");
             }
 
         } catch (IOException e) {
             logger.error("File download failed", e);
+        }
+    }
+
+    private void runTest() {
+        String[] search_terms = SystemSettings.QUERY_PARAMS;
+
+        for (String searchTerm : search_terms) {
+            System.out.println("Executing Search Request...");
+            SearchResponseTracker.getSearchResponseTracker().refresh();
+
+            Collection<FileTableEntry> entries = fileTable.getEntriesByFileName(searchTerm);
+            System.out.println(entries.isEmpty());
+
+            if (entries.isEmpty()) {
+                sendSearchRequest(searchTerm);
+            } else {
+                System.out.println("Files found in this node:");
+                for (FileTableEntry entry : entries) {
+                    System.out.println(entry.getFileName());
+                }
+                sendSearchRequest(searchTerm);
+            }
+
+            try {
+                Thread.sleep(15000);
+            } catch (InterruptedException ignored) {
+
+            }
         }
     }
 }

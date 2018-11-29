@@ -1,7 +1,5 @@
 package team.anoml.node.core;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import team.anoml.node.sender.AbstractSender;
 import team.anoml.node.sender.request.NeighbourRequestSender;
 
@@ -10,8 +8,6 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RoutingTable {
-
-    private static Logger logger = LogManager.getLogger(RoutingTable.class.getName());
 
     private static RoutingTable routingTable = new RoutingTable();
     private ConcurrentHashMap<String, RoutingTableEntry> entries = new ConcurrentHashMap<>();
@@ -80,8 +76,6 @@ public class RoutingTable {
     private void sendRequest(AbstractSender sender, String ipAddress, int port) {
         sender.setDestinationIpAddress(ipAddress);
         sender.setDestinationPort(port);
-
-        logger.debug("Executing request sender");
         sender.send();
     }
 }

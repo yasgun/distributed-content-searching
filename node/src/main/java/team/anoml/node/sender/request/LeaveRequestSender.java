@@ -15,13 +15,13 @@ public class LeaveRequestSender extends AbstractRequestSender {
     @Override
     protected void sendRequest() {
         try {
-            String response = String.format(SystemSettings.LEAVE_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
+            String request = String.format(SystemSettings.LEAVE_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
             ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.LEAVEOK_MSG, getDestinationIpAddress(), getDestinationPort(), new Date());
-            sendMessage(response, getDestinationIpAddress(), getDestinationPort());
-            logger.info("Sent LEAVE request to " + getDestinationIpAddress() + ":" + getDestinationPort());
+            sendMessage(request, getDestinationIpAddress(), getDestinationPort());
+            logger.info("Sent message: [" + request + "] from " + getDestinationIpAddress() + ":" + getDestinationPort());
 
         } catch (IOException e) {
-            logger.info("Sending LEAVE request to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
+            logger.error("Sending request to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
         }
     }
 }

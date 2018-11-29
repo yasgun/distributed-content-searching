@@ -20,16 +20,16 @@ public class JoinResponseSender extends AbstractResponseSender {
                 String response = String.format(SystemSettings.JOINOK_MSG_FORMAT, 0);
                 sendMessage(response, getDestinationIpAddress(), getDestinationPort());
                 getRoutingTable().addEntry(new RoutingTableEntry(getDestinationIpAddress(), getDestinationPort()));
-                logger.info("Added " + getDestinationIpAddress() + ":" + getDestinationPort() + " to routing table");
+                logger.info("Sent message: [" + response + "] from " + getDestinationIpAddress() + ":" + getDestinationPort());
 
             } else {
                 String response = String.format(SystemSettings.JOINOK_MSG_FORMAT, 9999);
                 sendMessage(response, getDestinationIpAddress(), getDestinationPort());
-                logger.warn("Error while adding " + getDestinationIpAddress() + ":" + getDestinationPort() + " to routing table");
+                logger.info("Sent message: [" + response + "] from " + getDestinationIpAddress() + ":" + getDestinationPort());
             }
 
         } catch (IOException e) {
-            logger.error("Sending JOIN response to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
+            logger.error("Sending response to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
         }
     }
 }

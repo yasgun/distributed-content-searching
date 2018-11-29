@@ -3,6 +3,7 @@ package team.anoml.node.util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -110,11 +111,68 @@ public class SystemSettings {
      * Configurations
      ********************************************/
 
+    public static final String[] QUERY_PARAMS = {
+            "Twilight",
+            "Jack",
+            "American Idol",
+            "Happy Feet",
+            "Twilight saga",
+            "Happy Feet",
+            "Happy Feet",
+            "Feet",
+            "Happy Feet",
+            "Twilight",
+            "Windows",
+            "Happy Feet",
+            "Mission Impossible",
+            "Twilight",
+            "Windows 8",
+            "The",
+            "Happy",
+            "Windows 8",
+            "Happy Feet",
+            "Super Mario",
+            "Jack and Jill",
+            "Happy Feet",
+            "Impossible",
+            "Happy Feet",
+            "Turn Up The Music",
+            "Adventures of Tintin",
+            "Twilight saga",
+            "Happy Feet",
+            "Super Mario",
+            "American Pickers",
+            "Microsoft Office 2010",
+            "Twilight",
+            "Modern Family",
+            "Jack and Jill",
+            "Jill",
+            "Glee",
+            "The Vampire Diarie",
+            "King Arthur",
+            "Jack and Jill",
+            "King Arthur",
+            "Windows XP",
+            "Harry Potter",
+            "Feet",
+            "Kung Fu Panda",
+            "Lady Gaga",
+            "Gaga",
+            "Happy Feet",
+            "Twilight",
+            "Hacking",
+            "King"
+    };
+
+    /********************************************
+     * Configurations
+     ********************************************/
+
     private static Properties properties = new Properties();
 
     static {
-        String propFileName = "config.properties";
-        try (InputStream inputStream = SystemSettings.class.getClassLoader().getResourceAsStream(propFileName);) {
+        String propFileName = "./config.properties";
+        try (InputStream inputStream = new FileInputStream(propFileName)) {
             properties.load(inputStream);
         } catch (IOException e) {
             logger.error("Reading Configuration Failed", e);
@@ -146,7 +204,7 @@ public class SystemSettings {
     }
 
     public static String getFilePath() {
-        return properties.getProperty("node.file_path", "/files/");
+        return properties.getProperty("node.file_path", "./files/");
     }
 
     public static int getRoutingTableLimit() {

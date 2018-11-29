@@ -17,7 +17,7 @@ public class HeartbeatResponseHandler extends AbstractResponseHandler {
         int port = Integer.parseInt(parts[1]);
 
         if (ResponseTracker.getResponseTracker().consumeWaitingResponse(SystemSettings.HBOK_MSG, ipAddress, port)) {
-            logger.info("Received HBOK from " + ipAddress + ":" + port);
+            logger.info("Received message: [" + getMessage() + "] from " + ipAddress + ":" + port);
         }
     }
 }

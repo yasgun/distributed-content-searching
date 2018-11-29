@@ -16,10 +16,10 @@ public class LeaveResponseSender extends AbstractResponseSender {
             String response = String.format(SystemSettings.LEAVEOK_MSG_FORMAT, 0);
             sendMessage(response, getDestinationIpAddress(), getDestinationPort());
             getRoutingTable().removeEntry(getDestinationIpAddress(), getDestinationPort());
-            logger.info("Removed " + getDestinationIpAddress() + ":" + getDestinationPort() + " from routing table");
+            logger.info("Sent message: [" + response + "] from " + getDestinationIpAddress() + ":" + getDestinationPort());
 
         } catch (IOException e) {
-            logger.error("Sending LEAVE response to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
+            logger.error("Sending response to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
         }
     }
 }

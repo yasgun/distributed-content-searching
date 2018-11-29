@@ -15,13 +15,13 @@ public class HeartbeatRequestSender extends AbstractRequestSender {
     @Override
     protected void sendRequest() {
         try {
-            String response = String.format(SystemSettings.HB_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
+            String request = String.format(SystemSettings.HB_MSG_FORMAT, SystemSettings.getNodeIP(), SystemSettings.getUDPPort());
             ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.HBOK_MSG, getDestinationIpAddress(), getDestinationPort(), new Date());
-            sendMessage(response, getDestinationIpAddress(), getDestinationPort());
-            logger.info("Requested HB from " + getDestinationIpAddress() + ":" + getDestinationPort());
+            sendMessage(request, getDestinationIpAddress(), getDestinationPort());
+            logger.info("Sent message: [" + request + "] from " + getDestinationIpAddress() + ":" + getDestinationPort());
 
         } catch (IOException e) {
-            logger.error("Sending HB request to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
+            logger.error("Sending request to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
         }
     }
 }

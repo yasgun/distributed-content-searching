@@ -16,13 +16,12 @@ public class NeighbourRequestSender extends AbstractRequestSender {
     protected void sendRequest() {
         try {
 
-            String response = String.format(SystemSettings.NBR_MSG_FORMAT, nodeIpAddress, nodePort);
+            String request = String.format(SystemSettings.NBR_MSG_FORMAT, nodeIpAddress, nodePort);
             ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.NBROK_MSG, getDestinationIpAddress(), getDestinationPort(), new Date());
-            sendMessage(response, getDestinationIpAddress(), getDestinationPort());
-            logger.info("Requested routing table from " + getDestinationIpAddress() + ":" + getDestinationPort());
+            sendMessage(request, getDestinationIpAddress(), getDestinationPort());
+            logger.info("Sent message: [" + request + "] from " + getDestinationIpAddress() + ":" + getDestinationPort());
 
         } catch (IOException e) {
-            logger.info("Sending NBR request to " + getDestinationIpAddress() + ":" + getDestinationPort() + "failed", e);
-        }
+            logger.error("Sending request to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);        }
     }
 }

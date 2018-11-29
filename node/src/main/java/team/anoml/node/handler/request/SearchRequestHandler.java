@@ -1,12 +1,8 @@
 package team.anoml.node.handler.request;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import team.anoml.node.sender.response.SearchResponseSender;
 
 public class SearchRequestHandler extends AbstractRequestHandler {
-
-    private static Logger logger = LogManager.getLogger(SearchRequestHandler.class.getName());
 
     @Override
     protected void handleRequest() {
@@ -25,8 +21,6 @@ public class SearchRequestHandler extends AbstractRequestHandler {
         sender.setFileName(fileName);
         sender.setHopsCount(hopsCount);
         sender.setId(id);
-
-        logger.debug("Executing SEROK response sender for " + ipAddress + ":" + port);
         sender.send();
     }
 }

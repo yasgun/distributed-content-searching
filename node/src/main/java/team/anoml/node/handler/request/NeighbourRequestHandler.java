@@ -1,12 +1,8 @@
 package team.anoml.node.handler.request;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import team.anoml.node.sender.response.NeighbourResponseSender;
 
 public class NeighbourRequestHandler extends AbstractRequestHandler {
-
-    private static Logger logger = LogManager.getLogger(NeighbourRequestHandler.class.getName());
 
     @Override
     protected void handleRequest() {
@@ -17,8 +13,6 @@ public class NeighbourRequestHandler extends AbstractRequestHandler {
         NeighbourResponseSender sender = new NeighbourResponseSender();
         sender.setDestinationIpAddress(ipAddress);
         sender.setDestinationPort(port);
-
-        logger.debug("Executing NBROK response sender for " + ipAddress + ":" + port);
         sender.send();
     }
 }

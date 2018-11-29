@@ -17,10 +17,10 @@ public class JoinRequestSender extends AbstractRequestSender {
             String request = String.format(SystemSettings.JOIN_MSG_FORMAT, nodeIpAddress, nodePort);
             ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.JOINOK_MSG, getDestinationIpAddress(), getDestinationPort(), new Date());
             sendMessage(request, getDestinationIpAddress(), getDestinationPort());
-            logger.info("Sent JOIN request to " + getDestinationIpAddress() + ":" + getDestinationPort());
+            logger.info("Sent message: [" + request + "] from " + getDestinationIpAddress() + ":" + getDestinationPort());
 
         } catch (IOException e) {
-            logger.info("Sending JOIN request to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
+            logger.error("Sending request to " + getDestinationIpAddress() + ":" + getDestinationPort() + " failed", e);
         }
     }
 }

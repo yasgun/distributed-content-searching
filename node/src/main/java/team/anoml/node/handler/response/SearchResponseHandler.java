@@ -2,9 +2,7 @@ package team.anoml.node.handler.response;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import team.anoml.node.core.ResponseTracker;
 import team.anoml.node.core.SearchResponseTracker;
-import team.anoml.node.util.SystemSettings;
 
 import java.util.Date;
 
@@ -22,12 +20,12 @@ public class SearchResponseHandler extends AbstractResponseHandler {
         int port = Integer.parseInt(parts[2]);
         int hopsCount = Integer.parseInt(parts[3]);
 
-        logger.info("Received SEROK response from " + ipAddress + ":" + port + " hops count" + hopsCount);
+        logger.info("Received message: [" + getMessage() + "] from " + ipAddress + ":" + port);
 
         if (SearchResponseTracker.getSearchResponseTracker().addReceivedResponse(ipAddress, port, new Date())) {
             for (int i = 4; i < filesCount + 4; i++) {
-                String fileName = parts[i].replace("_"," ");
-                System.out.println("File name: " + fileName + " at " + ipAddress + ":" + port);
+                String fileName = parts[i].replace("_", " ");
+                System.out.println("File name: " + fileName + " at " + ipAddress + ":" + port + " with hops count: " + hopsCount);
             }
         }
     }

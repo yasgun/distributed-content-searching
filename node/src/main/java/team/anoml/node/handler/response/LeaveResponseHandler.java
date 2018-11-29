@@ -9,6 +9,6 @@ public class LeaveResponseHandler extends AbstractResponseHandler {
 
     @Override
     protected void handleResponse() {
-        logger.info("LEAVEOK: " + getMessage() + " from node " + getClientIpAddress() + ":" + getClientPort());
+        logger.info("Received message: [" + getMessage() + "] from " + getClientIpAddress() + ":" + getClientPort());
     }
 }
