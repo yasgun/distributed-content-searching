@@ -21,7 +21,8 @@ public class NeighbourResponseHandler extends AbstractResponseHandler {
             String ipAddress = parts[i];
             int port = Integer.parseInt(parts[i + 1]);
 
-            if (getRoutingTable().getCount() < SystemSettings.getRoutingTableLimit() && !(ipAddress.equals(nodeIpAddress) && port == nodePort)) {
+            if (getRoutingTable().getCount() < SystemSettings.getRoutingTableLimit() && !(ipAddress.equals(nodeIpAddress) && port == nodePort)
+                    && getRoutingTable().getEntry(ipAddress, port) == null) {
 
                 getRoutingTable().addEntry(new RoutingTableEntry(ipAddress, port));
 

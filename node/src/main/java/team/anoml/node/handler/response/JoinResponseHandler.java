@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import team.anoml.node.core.ResponseTracker;
 import team.anoml.node.core.RoutingTableEntry;
+import team.anoml.node.sender.request.NeighbourRequestSender;
 import team.anoml.node.util.SystemSettings;
 
 public class JoinResponseHandler extends AbstractResponseHandler {
@@ -24,6 +25,17 @@ public class JoinResponseHandler extends AbstractResponseHandler {
             if (value == 0) {
                 getRoutingTable().addEntry(new RoutingTableEntry(getClientIpAddress(), getClientPort()));
                 logger.info("Added " + getClientIpAddress() + ":" + getClientPort() + " to routing table");
+
+            } else if (value == 9999) {
+                NeighbourRequestSender sender = new NeighbourRequestSender();
+                sender.setDestinationIpAddress(getClientIpAddress());
+                sender.setDestinationPort(getClientPort());
+                logger.debug("Executing request sender");
+                sender.send();
+
+                logger.info("Adding " + getClientIpAddress() + ":" + getClientPort() +
+                        " to routing table failed: " + value + ". Sent NBR to get its neighbours");
+
             } else {
                 logger.info("Adding " + getClientIpAddress() + ":" + getClientPort() +
                         " to routing table failed due to error: " + value);

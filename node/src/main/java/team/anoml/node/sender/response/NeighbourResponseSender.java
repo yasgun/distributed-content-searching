@@ -32,15 +32,14 @@ public class NeighbourResponseSender extends AbstractResponseSender {
                 neighborDetailsSize = 2;
                 int[] randomNumbers = NodeUtils.getDistinctOrderedTwoRandomNumbers(getRoutingTable().getCount());
 
-                int i = 1;
-                RoutingTableEntry neighbour;
-                while (i <= randomNumbers[1]) {
-                    neighbour = routingTableEntries.iterator().next();
-                    if (i == randomNumbers[0]) {
+                int i = 0;
+
+                for (RoutingTableEntry neighbour : routingTableEntries) {
+                    if (i == randomNumbers[0] || i == randomNumbers[1]) {
                         neighborDetails.append(neighbour.getIPAddress()).append(" ").append(neighbour.getPort()).append(" ");
                     }
-                    if (i == randomNumbers[1]) {
-                        neighborDetails.append(neighbour.getIPAddress()).append(" ").append(neighbour.getPort()).append(" ");
+                    if (i > randomNumbers[1]) {
+                        break;
                     }
                     i++;
                 }
