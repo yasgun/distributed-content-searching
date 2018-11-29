@@ -8,6 +8,8 @@ import team.anoml.node.sender.request.SearchRequestSender;
 import team.anoml.node.util.SystemSettings;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetSocketAddress;
 import java.util.Collection;
 
 public class SearchResponseSender extends AbstractResponseSender {
@@ -79,5 +81,17 @@ public class SearchResponseSender extends AbstractResponseSender {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Override
+    protected void sendMessage(String response, String ipAddress, int port) throws IOException {
+
+        String lengthText = "0000" + (response.length() + 5);
+        lengthText = lengthText.substring(lengthText.length() - 4);
+        response = lengthText + " " + response;
+
+        DatagramPacket datagramPacket = new DatagramPacket(response.getBytes(), response.length(), new InetSocketAddress(ipAddress, port).getAddress(), port);
+
+        datagramSocket.send(datagramPacket);
     }
 }

@@ -13,7 +13,6 @@ public class JoinRequestHandler extends AbstractRequestHandler {
         JoinResponseSender sender = new JoinResponseSender();
         sender.setDestinationIpAddress(ipAddress);
         sender.setDestinationPort(port);
-
         sender.send();
     }
 }

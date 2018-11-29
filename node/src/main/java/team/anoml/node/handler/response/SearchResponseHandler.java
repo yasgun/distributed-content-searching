@@ -2,9 +2,6 @@ package team.anoml.node.handler.response;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import team.anoml.node.core.SearchResponseTracker;
-
-import java.util.Date;
 
 public class SearchResponseHandler extends AbstractResponseHandler {
 
@@ -22,11 +19,9 @@ public class SearchResponseHandler extends AbstractResponseHandler {
 
         logger.info("Received message: [" + getMessage() + "] from " + ipAddress + ":" + port);
 
-        if (SearchResponseTracker.getSearchResponseTracker().addReceivedResponse(ipAddress, port, new Date())) {
-            for (int i = 4; i < filesCount + 4; i++) {
-                String fileName = parts[i].replace("_", " ");
-                System.out.println("File name: " + fileName + " at " + ipAddress + ":" + port + " with hops count: " + hopsCount);
-            }
+        for (int i = 4; i < filesCount + 4; i++) {
+            String fileName = parts[i].replace("_", " ");
+            System.out.println("File name: " + fileName + " at " + ipAddress + ":" + port + " with hops count: " + hopsCount);
         }
     }
 }

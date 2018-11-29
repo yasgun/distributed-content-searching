@@ -12,7 +12,7 @@ import java.net.InetSocketAddress;
 
 public abstract class AbstractSender {
 
-    private static DatagramSocket datagramSocket = SocketManager.getDatagramSocket();
+    protected static DatagramSocket datagramSocket = SocketManager.getDatagramSocket();
 
     protected static final String nodeIpAddress = SystemSettings.getNodeIP();
     protected static final int nodePort = SystemSettings.getUDPPort();

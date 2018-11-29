@@ -17,12 +17,11 @@ public class NodeUtils {
 
     public static void printRoutingTable(RoutingTable routingTable) {
         System.out.println("-----------------------------------------------------------------------------");
-        System.out.printf("%40s %20s", "Ip", "Port");
+        System.out.printf("%40s %20s", "IP", "Port");
         System.out.println();
         System.out.println("-----------------------------------------------------------------------------");
         for (RoutingTableEntry entry : routingTable.getAllEntries()) {
-            System.out.format("%40s %20s",
-                    entry.getIPAddress(), entry.getPort());
+            System.out.format("%40s %20s", entry.getIPAddress(), entry.getPort());
             System.out.println();
         }
         System.out.println("-----------------------------------------------------------------------------");
@@ -34,8 +33,7 @@ public class NodeUtils {
         System.out.println();
         System.out.println("-----------------------------------------------------------------------------");
         for (FileTableEntry entry : fileTable.getAllEntries()) {
-            System.out.format("%30s %40s",
-                    entry.getFileName(), entry.getSHA());
+            System.out.format("%30s %40s", entry.getFileName(), entry.getSHA());
             System.out.println();
         }
         System.out.println("-----------------------------------------------------------------------------");

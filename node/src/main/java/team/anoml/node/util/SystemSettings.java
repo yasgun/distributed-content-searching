@@ -16,11 +16,12 @@ public class SystemSettings {
      * Keyboard Commands
      ********************************************/
 
-    public static final String SHOW_FILES = "show:files";
-    public static final String SHOW_ROUTES = "show:routes";
-    public static final String SEARCH = "search";
-    public static final String DOWNLOAD = "download";
-    public static final String EXIT = "exit";
+    public static final String SHOW_FILES = "SHOW:FILES";
+    public static final String SHOW_ROUTES = "SHOW:ROUTES";
+    public static final String SEARCH = "SEARCH";
+    public static final String DOWNLOAD = "DOWNLOAD";
+    public static final String TEST = "TEST";
+    public static final String EXIT = "EXIT";
 
     /********************************************
      * Communication with the Bootstrap Server
@@ -72,13 +73,6 @@ public class SystemSettings {
     public static final String NBROK_MSG = "NBROK";
     public static final String HBOK_MSG = "HBOK";
     public static final String SEROK_MSG = "SEROK";
-
-    /********************************************
-     * TCP Communication
-     ********************************************/
-
-    public static final String DOWN_MSG_FORMAT = "DOWN %s";
-    public static final String DOWN_MSG = "DOWN";
 
     /********************************************
      * File Names

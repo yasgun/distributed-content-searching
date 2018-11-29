@@ -64,7 +64,6 @@ public class Node {
                 String[] parts = response.split(" ");
 
                 if (parts[1].equals(SystemSettings.ERROR_MSG)) {
-
                     throw new NodeException("Starting node failed", new Throwable("Error response: " + parts[2]));
 
                 } else if (parts[1].equals(SystemSettings.REGOK_MSG)) {
@@ -114,7 +113,7 @@ public class Node {
         while (running) {
             try {
                 Scanner keyboard = new Scanner(System.in);
-                System.out.println("Enter Command: ");
+                System.out.println(">>>");
                 String request = keyboard.nextLine();
 
                 String[] incomingResult = request.split(" ", 2);
@@ -129,25 +128,30 @@ public class Node {
                         break;
                     case SystemSettings.SEARCH:
                         System.out.println("Executing Search Request...");
-                        SearchResponseTracker.getSearchResponseTracker().refresh();
                         String fileName = incomingResult[1];
 
                         Collection<FileTableEntry> entries = fileTable.getEntriesByFileName(fileName);
-                        System.out.println(entries.isEmpty());
+
                         if (entries.isEmpty()) {
                             sendSearchRequest(fileName);
                         } else {
-                            System.out.println("Files found in this node:");
+                            System.out.println("Files Found Within Node:");
                             for (FileTableEntry entry : entries) {
-                                System.out.println(entry.getFileName());
+                                System.out.println("File Name: " + entry.getFileName());
                             }
                             sendSearchRequest(fileName);
                         }
+
+                        Thread.sleep(5000);
                         break;
                     case SystemSettings.DOWNLOAD:
                         String[] incomingResultForDownload = incomingResult[1].split(" ", 3);
                         System.out.println("Executing Download Request...");
                         downloadFile(incomingResultForDownload[0], Integer.valueOf(incomingResultForDownload[1]), incomingResultForDownload[2]);
+                        break;
+                    case SystemSettings.TEST:
+                        System.out.println("Executing Test...");
+                        runTest();
                         break;
                     case SystemSettings.EXIT:
                         System.out.println("Terminating Node...");
@@ -212,9 +216,7 @@ public class Node {
         String[] fileNames = SystemSettings.FILE_NAMES;
 
         Random random = new Random();
-
         int noOfFiles = random.nextInt(3) + 3;
-
         ArrayList<Integer> list = new ArrayList<>();
 
         for (int i = 1; i < fileNames.length; i++) {
@@ -327,22 +329,21 @@ public class Node {
         }
     }
 
-    private void runTest() {
-        String[] search_terms = SystemSettings.QUERY_PARAMS;
+    private static void runTest() {
+        String[] searchTerms = SystemSettings.QUERY_PARAMS;
 
-        for (String searchTerm : search_terms) {
-            System.out.println("Executing Search Request...");
-            SearchResponseTracker.getSearchResponseTracker().refresh();
+        for (String searchTerm : searchTerms) {
+            System.out.println("Searching for: " + searchTerm);
 
             Collection<FileTableEntry> entries = fileTable.getEntriesByFileName(searchTerm);
-            System.out.println(entries.isEmpty());
 
             if (entries.isEmpty()) {
                 sendSearchRequest(searchTerm);
+
             } else {
-                System.out.println("Files found in this node:");
+                System.out.println("Files Found Within Node:");
                 for (FileTableEntry entry : entries) {
-                    System.out.println(entry.getFileName());
+                    System.out.println("File Name: " + entry.getFileName());
                 }
                 sendSearchRequest(searchTerm);
             }

@@ -44,14 +44,12 @@ public class TCPServer implements NodeServer {
 
     @Override
     public void stopServer() {
-        logger.info("Stopping TCP server...");
         stop();
         logger.info("TCP server stopped!");
     }
 
     @Override
     public void run() {
-        logger.info("Starting TCP server...");
         port(SystemSettings.getTCPPort());
         startServer();
         logger.info("TCP server started");
