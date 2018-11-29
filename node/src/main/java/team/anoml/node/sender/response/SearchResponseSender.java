@@ -16,6 +16,7 @@ public class SearchResponseSender extends AbstractResponseSender {
 
     private String fileName;
     private int hopsCount;
+    private String id;
 
     @Override
     protected void sendResponse() {
@@ -52,6 +53,7 @@ public class SearchResponseSender extends AbstractResponseSender {
                     sender.setTargetPort(getDestinationPort());
                     sender.setFileName(fileName);
                     sender.setHopsCount(hopsCount + 1);
+                    sender.setId(id);
 
                     logger.debug("Executing request sender");
                     sender.send();
@@ -76,5 +78,9 @@ public class SearchResponseSender extends AbstractResponseSender {
 
     public void setHopsCount(int hopsCount) {
         this.hopsCount = hopsCount;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

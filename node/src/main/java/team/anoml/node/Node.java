@@ -285,6 +285,7 @@ public class Node {
             sender.setTargetPort(SystemSettings.getUDPPort());
             sender.setFileName(fileName);
             sender.setHopsCount(0);
+            sender.setId(UUID.randomUUID().toString());
 
             logger.debug("Executing request sender");
             sender.send();

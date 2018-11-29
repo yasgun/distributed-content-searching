@@ -17,12 +17,14 @@ public class SearchRequestHandler extends AbstractRequestHandler {
 
         String fileName = parts[2];
         int hopsCount = Integer.parseInt(parts[3]);
+        String id = parts[4];
 
         SearchResponseSender sender = new SearchResponseSender();
         sender.setDestinationIpAddress(ipAddress);
         sender.setDestinationPort(port);
         sender.setFileName(fileName);
         sender.setHopsCount(hopsCount);
+        sender.setId(id);
 
         logger.debug("Executing SEROK response sender for " + ipAddress + ":" + port);
         sender.send();
