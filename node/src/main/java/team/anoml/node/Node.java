@@ -89,7 +89,7 @@ public class Node {
                         default:
                             int[] numbers = NodeUtils.getDistinctOrderedTwoRandomNumbers(Integer.valueOf(noOfNodes));
                             for (int i : numbers) {
-                                sendJoinRequest(parts[i * 3 + 3], Integer.valueOf(parts[i * 3 + 3]));
+                                sendJoinRequest(parts[i * 3 + 3], Integer.valueOf(parts[i * 3 + 4]));
                             }
                             break;
                     }
