@@ -273,6 +273,8 @@ public class Node {
     private static void sendSearchRequest(String fileName) {
         Collection<RoutingTableEntry> routingTableEntries = getRoutingTable().getAllEntries();
 
+        String id = UUID.randomUUID().toString();
+
         for (RoutingTableEntry entry : routingTableEntries) {
             String ipAddress = entry.getIPAddress();
             int port = entry.getPort();
@@ -285,7 +287,7 @@ public class Node {
             sender.setTargetPort(SystemSettings.getUDPPort());
             sender.setFileName(fileName);
             sender.setHopsCount(0);
-            sender.setId(UUID.randomUUID().toString());
+            sender.setId(id);
 
             logger.debug("Executing request sender");
             sender.send();
