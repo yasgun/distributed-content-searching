@@ -139,6 +139,7 @@ public class Node {
                         break;
                     case SystemSettings.SEARCH:
                         System.out.println("Executing Search Request...");
+                        SearchResponseTracker.getSearchResponseTracker().refresh();
                         String fileName = incomingResult[1];
 
                         Collection<FileTableEntry> entries = fileTable.getEntriesByFileName(fileName);
@@ -329,7 +330,7 @@ public class Node {
             System.out.println("Actual SHA: " + NodeUtils.getSHAHex(file));
             System.out.println("Expected SHA:" + sha);
 
-            if (NodeUtils.getSHAHex(file).equals(sha)){
+            if (NodeUtils.getSHAHex(file).equals(sha)) {
                 System.out.println("SHA MATCHES");
             }
 

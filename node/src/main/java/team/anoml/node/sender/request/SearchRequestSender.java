@@ -2,15 +2,16 @@ package team.anoml.node.sender.request;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import team.anoml.node.core.ResponseTracker;
 import team.anoml.node.util.SystemSettings;
 
 import java.io.IOException;
-import java.util.Date;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SearchRequestSender extends AbstractRequestSender {
 
     private static Logger logger = LogManager.getLogger(SearchRequestSender.class.getName());
+
+//    private static ConcurrentHashMap<String, Integer> sentRequests = new ConcurrentHashMap<>();
 
     private String targetIpAddress;
     private int targetPort;
@@ -19,11 +20,18 @@ public class SearchRequestSender extends AbstractRequestSender {
 
     @Override
     protected void sendRequest() {
+//        if (sentRequests.get(targetIpAddress + ":" + targetPort + ":" + fileName) != null) {
+//            if (sentRequests.get(targetIpAddress + ":" + targetPort + ":" + fileName) <= hopsCount) {
+//                return;
+//            }else {
+//                sentRequests.put(targetIpAddress + ":" + targetPort + ":" + fileName, hopsCount);
+//            }
+//        }else {
+//            sentRequests.put(targetIpAddress + ":" + targetPort + ":" + fileName, hopsCount);
+//        }
+
         try {
             String response = String.format(SystemSettings.SER_MSG_FORMAT, targetIpAddress, targetPort, fileName, hopsCount);
-            if (nodeIpAddress.equals(targetIpAddress) && nodePort == targetPort) {
-                ResponseTracker.getResponseTracker().addWaitingResponse(SystemSettings.SEROK_MSG, targetIpAddress, targetPort, new Date());
-            }
             sendMessage(response, getDestinationIpAddress(), getDestinationPort());
             logger.info("Sending SER for " + fileName + " from " + getDestinationIpAddress() + ":" + getDestinationPort());
         } catch (IOException e) {
