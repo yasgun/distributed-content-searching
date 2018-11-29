@@ -2,7 +2,11 @@ package team.anoml.node.handler.request;
 
 import team.anoml.node.sender.response.SearchResponseSender;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 public class SearchRequestHandler extends AbstractRequestHandler {
+
+    private static ConcurrentHashMap<String, Integer> handledRequests = new ConcurrentHashMap<>();
 
     @Override
     protected void handleRequest() {
@@ -15,12 +19,17 @@ public class SearchRequestHandler extends AbstractRequestHandler {
         int hopsCount = Integer.parseInt(parts[3]);
         String id = parts[4];
 
-        SearchResponseSender sender = new SearchResponseSender();
-        sender.setDestinationIpAddress(ipAddress);
-        sender.setDestinationPort(port);
-        sender.setFileName(fileName);
-        sender.setHopsCount(hopsCount);
-        sender.setId(id);
-        sender.send();
+        if (!handledRequests.containsKey(id)) {
+
+            handledRequests.put(id, hopsCount);
+
+            SearchResponseSender sender = new SearchResponseSender();
+            sender.setDestinationIpAddress(ipAddress);
+            sender.setDestinationPort(port);
+            sender.setFileName(fileName);
+            sender.setHopsCount(hopsCount);
+            sender.setId(id);
+            sender.send();
+        }
     }
 }
