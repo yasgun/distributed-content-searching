@@ -151,6 +151,7 @@ public class Node {
                             for (FileTableEntry entry : entries) {
                                 System.out.println(entry.getFileName());
                             }
+                            sendSearchRequest(fileName);
                         }
                         break;
                     case SystemSettings.DOWNLOAD:
