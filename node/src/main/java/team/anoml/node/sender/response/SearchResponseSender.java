@@ -20,7 +20,7 @@ public class SearchResponseSender extends AbstractResponseSender {
 
     @Override
     protected void sendResponse() {
-        Collection<FileTableEntry> fileTableEntries = getFileTable().getEntriesByFileName(fileName);
+        Collection<FileTableEntry> fileTableEntries = getFileTable().getEntriesByFileName(fileName.replaceAll("_", " "));
 
         if (!fileTableEntries.isEmpty()) {
             StringBuilder fileNamesResponse = new StringBuilder();

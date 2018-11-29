@@ -25,7 +25,7 @@ public class SearchRequestSender extends AbstractRequestSender {
         if (!sentRequests.containsKey(id) || (sentRequests.containsKey(id) && sentRequests.get(id) == hopsCount)) {
             sentRequests.put(id, hopsCount);
             try {
-                String response = String.format(SystemSettings.SER_MSG_FORMAT, targetIpAddress, targetPort, fileName, hopsCount, id);
+                String response = String.format(SystemSettings.SER_MSG_FORMAT, targetIpAddress, targetPort, fileName.replaceAll(" ", "_"), hopsCount, id);
                 sendMessage(response, getDestinationIpAddress(), getDestinationPort());
                 logger.info("Sending SER for " + fileName + " to " + getDestinationIpAddress() + ":" + getDestinationPort());
             } catch (IOException e) {
