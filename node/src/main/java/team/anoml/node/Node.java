@@ -289,7 +289,6 @@ public class Node {
     }
 
     private static void downloadFile(String ipAddress, int port, String fileName) {
-        System.out.println(ipAddress + ":" + port + " " + fileName);
         try {
             URL url = new URL("http://" + ipAddress + ":" + port + "/download/" + fileName.replaceAll(" ", "%20"));
             System.out.println(url);
@@ -308,13 +307,13 @@ public class Node {
                 while ((x = in.read(data, 0, 1024)) >= 0) {
                     downloadedFileSize += x;
                     final int currentProgress = (int) ((((double) downloadedFileSize) / ((double) completeFileSize)) * 100000d);
-                    System.out.println(currentProgress);
                     bout.write(data, 0, x);
                 }
             }
 
             File file = new File((SystemSettings.getFilePath() + "/downloaded/" + fileName).replaceAll(" ", "\\ "));
 
+            System.out.println("Download Completed!");
             System.out.println("Actual SHA: " + NodeUtils.getSHAHex(file));
             System.out.println("Expected SHA:" + sha);
 
