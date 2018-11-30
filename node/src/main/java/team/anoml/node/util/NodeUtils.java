@@ -47,7 +47,7 @@ public class NodeUtils {
         String filePath = SystemSettings.getFilePath();
         Random random = new Random();
 
-        int length = (random.nextInt(10) + 1) * 1024 * 1024;
+        int length = (random.nextInt(9) + 2) * 1024 * 1024;
         byte[] array = new byte[length];
         random.nextBytes(array);
 
